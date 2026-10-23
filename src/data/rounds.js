@@ -622,6 +622,78 @@ Māris knows an old disputed debt (which he never actually owed and was later ca
     },
   },
 
+
+  // ── ROUND 9: The Google Panel ─────────────────────────────────────────────
+  {
+    id: 'round9',
+    number: 9,
+    title: 'The Google Panel',
+    theme: 'Right to De-listing & Purpose Limitation',
+    laws: ['GDPR'],
+    timerSeconds: 120,
+    points: 100,
+    bonusPoints: 50,
+
+    scenario: {
+      title: 'The Google Panel',
+      text: `Google's Knowledge Panel for Aļona Ostapenko aggregates her age, DOB, weight, height, parents, siblings, education and social profiles — pulled from Wikipedia, sports databases and news sources. She never personally submitted this data to Google.
+
+Now imagine the same thing happening to a private person: Sandris, a mid-level accountant in Rīga, was mentioned once in a local news article 8 years ago after a minor traffic incident. Google's search results still show his name, employer, neighbourhood, and a photo. He's been passed over for jobs. He wants it gone.
+
+Google refuses: "The article is still online. We just index it."`,
+      imageUrl: 'google-panel.png',
+      imageCaption: 'Google\'s Knowledge Panel — data aggregated from multiple sources without the subject\'s direct input',
+    },
+
+    question: 'Can Sandris force Google to remove his data from search results under GDPR — even if the original news article stays online?',
+    options: [
+      { id: 'A', text: 'No — Google only indexes what\'s online; it\'s not a data controller and has no GDPR obligations' },
+      { id: 'B', text: 'Yes — under Art. 17, Google must de-list results on valid request; the original article can stay' },
+      { id: 'C', text: 'Only if the original article is also deleted — de-listing without deletion is meaningless' },
+      { id: 'D', text: 'Only if the data is factually incorrect — GDPR cannot force removal of true information' },
+    ],
+    correctAnswer: 'B',
+
+    reveal: {
+      title: 'Google Spain (2014): search engines ARE controllers — and must de-list',
+      verdict: 'B is correct',
+      points: [
+        {
+          icon: '⚖️',
+          law: 'Google Spain v. AEPD — C-131/12 (2014)',
+          text: 'The landmark CJEU ruling: search engines are independent data controllers for the results they return. "We just index it" is not a defence. Google processes personal data when it retrieves, organises and presents results — and must respond to de-listing requests.',
+        },
+        {
+          icon: '✅',
+          law: 'GDPR Art. 17 — Right to De-listing',
+          text: 'De-listing ≠ deletion. The original article stays online — Google only removes the link from search results. Sandris\'s Art. 17 claim is strong: the data is old (8 years), he\'s a private person, no ongoing public interest, and it\'s causing real harm (job applications).',
+        },
+        {
+          icon: '🔴',
+          law: 'GDPR Art. 5(1)(b) — Purpose Limitation',
+          text: 'His data was published for one purpose (local news reporting). Google repurposing it into a permanent searchable profile, linked to his employer and photo, is a secondary use he never anticipated and didn\'t consent to.',
+        },
+        {
+          icon: '⚠️',
+          law: 'Why Ostapenko is different',
+          text: 'For a public figure like Ostapenko, most of the Knowledge Panel survives the balance test: sporting achievements, public role data, and journalistic content serve legitimate public interest (GDPR Art. 17(3)(a)). Sandris is a private person with no ongoing public relevance — the scales tip firmly in his favour.',
+        },
+      ],
+    },
+
+    bonus: {
+      question: 'Sandris submits a de-listing request to Google. Google rejects it. What is his next step under GDPR?',
+      options: [
+        { id: 'A', text: 'Sue Google directly in a Latvian court for €10,000 in damages' },
+        { id: 'B', text: 'Complain to the Datu valsts inspekcija (DVI) — the Latvian supervisory authority' },
+        { id: 'C', text: 'File a copyright claim with the original newspaper to force article deletion' },
+        { id: 'D', text: 'Nothing — Google\'s final decision on de-listing requests cannot be appealed under GDPR' },
+      ],
+      correctAnswer: 'B',
+      explanation: 'GDPR Art. 77 gives every data subject the right to lodge a complaint with their national supervisory authority if they believe processing violates GDPR. In Latvia that\'s the Datu valsts inspekcija (DVI). The DVI investigates, can order Google to comply, and can impose fines. He can ALSO sue in court (Art. 79) — both routes can run in parallel. Option A is available but typically follows a DVI decision. Option D is wrong — refusal of a de-listing request is always reviewable.',
+    },
+  },
+
 ]
 
 export const getRound = (id) => ROUNDS.find(r => r.id === id) || ROUNDS[0]
