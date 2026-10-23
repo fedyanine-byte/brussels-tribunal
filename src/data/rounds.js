@@ -334,6 +334,78 @@ The woman in the photo has no idea this is happening.`,
     },
   },
 
+
+  // ── ROUND 5: The AI Nude ──────────────────────────────────────────────────
+  {
+    id: 'round5',
+    number: 5,
+    title: 'The AI Nude',
+    theme: 'Deepfakes, Biometric Data & AI Act',
+    laws: ['GDPR', 'AI Act'],
+    timerSeconds: 120,
+    points: 100,
+    bonusPoints: 50,
+
+    scenario: {
+      title: 'The AI Nude',
+      text: `Aigars, 22, downloads a free "AI photo enhancer" app he found on Telegram. He uploads a public Instagram photo of his ex-girlfriend. The app uses AI to generate a realistic nude image of her — combining her real face with a synthetic body.
+
+He shares the result in a group chat with 14 mutual friends, adding: "AI дало мне то, чего она не давала" ("AI gave me what she wouldn't").
+
+The image is entirely synthetic — her face is real, the body is generated. She never posed for any photo like this.`,
+      imageUrl: 'ai-nude.png',
+      imageCaption: 'AI-generated composite: real face + synthetic body (body pixelated for display)',
+    },
+
+    question: 'Under EU law, which statement about Aigars\'s actions is MOST accurate?',
+    options: [
+      { id: 'A', text: 'No GDPR violation — the image is fake, not a real photo, so no real data was processed' },
+      { id: 'B', text: 'Only criminal law applies; GDPR and AI Act don\'t cover AI-generated synthetic imagery' },
+      { id: 'C', text: 'He violated GDPR (biometric data processed without consent) + AI Act (deepfake not labelled) + likely criminal law' },
+      { id: 'D', text: 'Only the app developer is liable — Aigars just used an existing tool' },
+    ],
+    correctAnswer: 'C',
+
+    reveal: {
+      title: '"It\'s fake" is not a defence — her face is real data',
+      verdict: 'C is correct',
+      points: [
+        {
+          icon: '🔴',
+          law: 'GDPR Art. 9',
+          text: 'Her face in the Instagram photo is biometric data — it uniquely identifies her. Processing it to generate intimate imagery without consent = processing special category data with no lawful basis. This is the most serious tier of GDPR violation.',
+        },
+        {
+          icon: '🔴',
+          law: 'AI Act Art. 50',
+          text: 'Deepfakes — AI-generated images depicting real people — must be clearly labelled as artificially generated. Aigars shared an unlabelled deepfake. The app developer also has transparency obligations. Neither complied.',
+        },
+        {
+          icon: '🔴',
+          law: 'Criminal Law',
+          text: 'Non-consensual intimate imagery (NCII) laws are in force or pending across EU member states. Latvia\'s Criminal Law (Krimināllikums) Art. 145² covers intimate image abuse. This is not just an administrative fine — it is a criminal offence.',
+        },
+        {
+          icon: '⚖️',
+          law: 'Liability split',
+          text: 'The app developer violated AI Act + GDPR as a controller/processor. Aigars violated GDPR as the person who chose to process her biometric data. Sharing it added DSA implications. "I just used the tool" is not a defence — you made the choice.',
+        },
+      ],
+    },
+
+    bonus: {
+      question: 'Under GDPR, her Instagram photo (showing her face) is classified as which type of data?',
+      options: [
+        { id: 'A', text: 'Regular personal data (Art. 4) — a face photo is not special category' },
+        { id: 'B', text: 'Special category data (Art. 9) — biometric data used to uniquely identify a person' },
+        { id: 'C', text: 'Anonymised data — public Instagram posts cannot be personal data' },
+        { id: 'D', text: 'Sensitive data (Art. 6) — requires a higher lawful basis than regular data' },
+      ],
+      correctAnswer: 'B',
+      explanation: 'GDPR Art. 9 defines special category data to include "biometric data for the purpose of uniquely identifying a natural person." A face photo processed by an AI system to identify or generate content about a specific person qualifies. The key is the PURPOSE of processing — using her face to generate intimate content is exactly the kind of biometric processing Art. 9 targets. Processing special category data requires an explicit legal basis under Art. 9(2), of which none exists here.',
+    },
+  },
+
 ]
 
 export const getRound = (id) => ROUNDS.find(r => r.id === id) || ROUNDS[0]
