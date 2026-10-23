@@ -1,14 +1,15 @@
 import { initializeApp } from 'firebase/app'
 import { getDatabase } from 'firebase/database'
 
+// Firebase client config is intentionally public — security is enforced by database rules
 const firebaseConfig = {
-  apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  databaseURL:       import.meta.env.VITE_FIREBASE_DATABASE_URL,
-  projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket:     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId:             import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey:            "AIzaSyCW9BrcxNnICN1F_rhlCrbAcn8POihTSs4",
+  authDomain:        "brussels-tribunal.firebaseapp.com",
+  databaseURL:       "https://brussels-tribunal-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "brussels-tribunal",
+  storageBucket:     "brussels-tribunal.firebasestorage.app",
+  messagingSenderId: "152593739874",
+  appId:             "1:152593739874:web:277c3b82cfaf7812e6e13b",
 }
 
 const app = initializeApp(firebaseConfig)
