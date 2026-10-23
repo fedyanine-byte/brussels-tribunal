@@ -10,7 +10,7 @@ export default function App() {
       <Route path="/"           element={<HomePage />} />
       <Route path="/presenter"  element={<PresenterPage />} />
       <Route path="/join"       element={<JoinPage />} />
-      <Route path="/team/:code/:teamId" element={<TeamPage />} />
+      <Route path="/team/:teamId" element={<TeamPage />} />
       <Route path="*"           element={<Navigate to="/" replace />} />
     </Routes>
   )

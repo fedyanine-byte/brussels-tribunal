@@ -21,32 +21,22 @@ const OPTION_RING = {
 const round = ROUNDS[0]
 
 export default function TeamPage() {
-  const { code, teamId } = useParams()
+  const { teamId } = useParams()
   const navigate = useNavigate()
-  const { gameCode, gameState, myTeamId, subscribe, submitAnswer } = useGame()
+  const { gameState, myTeamId, subscribe, submitAnswer } = useGame()
 
-  const [myAnswer,      setMyAnswer]      = useState(null)
-  const [myBonusAnswer, setMyBonusAnswer] = useState(null)
-  const [submitted,     setSubmitted]     = useState(false)
-  const [bonusSubmitted,setBonusSubmitted]= useState(false)
+  const [myAnswer,       setMyAnswer]       = useState(null)
+  const [myBonusAnswer,  setMyBonusAnswer]  = useState(null)
+  const [submitted,      setSubmitted]      = useState(false)
+  const [bonusSubmitted, setBonusSubmitted] = useState(false)
 
-  // Subscribe to game when page loads (covers page refresh)
+  // Subscribe on mount (covers page refresh — fixed game slot, no code needed)
+  useEffect(() => { subscribe() }, [])
+
+  // Reset answer state on status change
   useEffect(() => {
-    if (!gameCode || gameCode !== code) {
-      subscribe(code)
-    }
-  }, [code])
-
-  // Reset answer state when status changes to a new question
-  useEffect(() => {
-    if (gameState?.status === 'question') {
-      setMyAnswer(null)
-      setSubmitted(false)
-    }
-    if (gameState?.status === 'bonus') {
-      setMyBonusAnswer(null)
-      setBonusSubmitted(false)
-    }
+    if (gameState?.status === 'question') { setMyAnswer(null);      setSubmitted(false) }
+    if (gameState?.status === 'bonus')    { setMyBonusAnswer(null); setBonusSubmitted(false) }
   }, [gameState?.status])
 
   const effectiveTeamId = myTeamId || teamId
@@ -55,14 +45,14 @@ export default function TeamPage() {
     if (submitted || gameState?.status !== 'question') return
     setMyAnswer(optionId)
     setSubmitted(true)
-    submitAnswer(code, effectiveTeamId, optionId, false)
+    submitAnswer(effectiveTeamId, optionId, false)
   }
 
   const handleBonus = (optionId) => {
     if (bonusSubmitted || gameState?.status !== 'bonus') return
     setMyBonusAnswer(optionId)
     setBonusSubmitted(true)
-    submitAnswer(code, effectiveTeamId, optionId, true)
+    submitAnswer(effectiveTeamId, optionId, true)
   }
 
   const g = gameState
@@ -74,7 +64,6 @@ export default function TeamPage() {
       <div className="min-h-screen bg-eu-dark flex flex-col items-center justify-center p-6">
         <div className="text-4xl mb-4 animate-pulse">🏛️</div>
         <p className="text-white text-lg font-bold">Connecting to game…</p>
-        <p className="text-white/40 text-sm mt-2">Code: {code}</p>
         <button onClick={() => navigate('/join')} className="mt-8 text-white/30 text-sm hover:text-white/60">
           ← Re-join
         </button>
@@ -90,7 +79,6 @@ export default function TeamPage() {
     <div className="flex items-center gap-3 px-4 py-3 bg-black/30 border-b border-white/10 backdrop-blur">
       <div className="w-4 h-4 rounded-full flex-shrink-0" style={{ backgroundColor: teamColor }} />
       <span className="text-white font-bold flex-1">{teamName}</span>
-      <span className="text-white/40 text-xs font-mono">#{code}</span>
       {myTeam?.score > 0 && (
         <span className="text-eu-gold font-black text-sm">{myTeam.score} pts</span>
       )}
