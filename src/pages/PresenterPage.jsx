@@ -120,31 +120,34 @@ export default function PresenterPage() {
           </div>
         </div>
 
-        <div className="flex gap-10 flex-1 min-h-0">
+        <div className="flex gap-8 flex-1 min-h-0">
 
-          {/* Scenario preview — students read while joining */}
-          <div className="flex-1 card flex flex-col gap-6 overflow-hidden">
-            <div className="rounded-2xl overflow-hidden bg-white/5 border border-white/10 flex-shrink-0" style={{ height: '240px' }}>
-              <img
-                src={`${BASE}${round.scenario.imageUrl}`}
-                alt={round.scenario.title}
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <div>
-              <p className="text-eu-gold font-black text-2xl mb-3">{round.scenario.title}</p>
-              <p className="text-white/70 text-xl leading-relaxed">{round.scenario.text}</p>
+          {/* Scenario image — fills entire left column, caption overlay */}
+          <div className="flex-1 rounded-3xl overflow-hidden bg-white/5 border border-white/10 relative min-h-0">
+            <img
+              src={`${BASE}${round.scenario.imageUrl}`}
+              alt={round.scenario.title}
+              className="w-full h-full object-contain"
+            />
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-8 py-6">
+              <p className="text-eu-gold font-black text-2xl mb-2">{round.scenario.title}</p>
+              <p className="text-white/80 text-lg leading-relaxed line-clamp-3">{round.scenario.text}</p>
             </div>
           </div>
 
-          {/* Right column: join URL + teams + start */}
-          <div className="w-96 flex flex-col gap-6">
+          {/* Right column: QR + teams + start */}
+          <div className="w-88 flex flex-col gap-5" style={{ width: '22rem' }}>
 
-            {/* Join URL box */}
-            <div className="card text-center">
-              <p className="text-white/50 text-sm uppercase tracking-widest mb-3">Join at</p>
-              <p className="text-eu-gold font-mono font-black text-2xl break-all">{joinUrl}</p>
-              <p className="text-white/30 text-sm mt-2">Enter your team name</p>
+            {/* QR code join box */}
+            <div className="card flex flex-col items-center gap-3">
+              <p className="text-white/50 text-xs font-bold uppercase tracking-widest">Scan to join</p>
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(joinUrl)}&bgcolor=FFFFFF&color=000000&margin=8`}
+                alt="QR Code"
+                className="w-44 h-44 rounded-xl"
+              />
+              <p className="text-eu-gold font-mono text-sm font-bold break-all text-center leading-snug">{joinUrl}</p>
+              <p className="text-white/30 text-xs">Enter your team name</p>
             </div>
 
             {/* Team list */}
