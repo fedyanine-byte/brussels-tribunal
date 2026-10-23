@@ -20,14 +20,53 @@ export default function PresenterPage() {
     showLeaderboard, restartRound } = useGame()
   const [creating, setCreating] = useState(false)
   const [created,  setCreated]  = useState(false)
+  const [createErr, setCreateErr] = useState(null)
 
   useEffect(() => {
     if (created) return
     setCreating(true)
+    setCreateErr(null)
     createGame(round.id)
       .then(() => { setCreated(true); setCreating(false) })
-      .catch(() => setCreating(false))
+      .catch((err) => { setCreating(false); setCreateErr(err?.message || 'Firebase error') })
   }, [])
+
+  if (createErr) {
+    return (
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <div className="text-center max-w-md px-6">
+          <div className="text-4xl mb-4">🔥</div>
+          <p className="text-red-400 font-semibold mb-2">Firebase connection failed</p>
+          <p className="text-white/40 text-sm font-mono break-all mb-6">{createErr}</p>
+          <p className="text-white/30 text-xs mb-4">
+            Скорее всего не задеплоены правила БД.<br/>
+            Открой Firebase Console → Realtime Database → Rules → вставь:
+          </p>
+          <pre className="bg-white/5 text-green-300 text-xs text-left rounded p-3 mb-6">
+{`{
+  "rules": {
+    "games": {
+      "$code": {
+        ".read": true,
+        ".write": true
+      }
+    }
+  }
+}`}
+          </pre>
+          <button
+            onClick={() => { setCreateErr(null); setCreated(false); setCreating(true);
+              createGame(round.id)
+                .then(() => { setCreated(true); setCreating(false) })
+                .catch((err) => { setCreating(false); setCreateErr(err?.message || 'Firebase error') }) }}
+            className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   if (creating || !gameCode) {
     return (
