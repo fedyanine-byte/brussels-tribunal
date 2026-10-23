@@ -262,6 +262,78 @@ The post stays up for 3 weeks. The tenant finds it, is refused by two other land
       explanation: 'Right to erasure — Art. 17 ("right to be forgotten"). Since the posting has no valid legal basis, the tenant can demand immediate deletion. Access (A) is useful for evidence, but erasure is the direct remedy. Restriction (D) would pause processing, not remove the data.',
     },
   },
+
+  // ── ROUND 4: The Personas Kods ────────────────────────────────────────────
+  {
+    id: 'round4',
+    number: 4,
+    title: 'The Personas Kods',
+    theme: 'Doxxing & Personal Data in Public Groups',
+    laws: ['GDPR', 'Latvian PDPA'],
+    timerSeconds: 120,
+    points: 100,
+    bonusPoints: 50,
+
+    scenario: {
+      title: 'The Personas Kods',
+      text: `In a Telegram group called "Rīgas čats" with 1,248 members, Anna posts a photo of a woman she doesn't know: "Kas ir zināms par viņu?" ("What do you know about her?")
+
+Three minutes later, Jānis replies with her full name and personas kods (personal ID code). Liene replies: "Paldies!" (Thanks!)
+
+The woman in the photo has no idea this is happening.`,
+      imageUrl: 'personas-kods.png',
+      imageCaption: '"Rīgas čats" Telegram group — name and personal code shared with 1,248 members',
+    },
+
+    question: 'What is the PRIMARY GDPR violation in this Telegram exchange?',
+    options: [
+      { id: 'A', text: 'None — Telegram is a private messaging app, GDPR doesn\'t apply' },
+      { id: 'B', text: 'Jānis processed personal data (name + ID code) with no lawful basis to 1,248 strangers' },
+      { id: 'C', text: 'Only Anna violated GDPR by posting the photo — Jānis just answered her question' },
+      { id: 'D', text: 'The personas kods is not personal data — it\'s an administrative number, not a name' },
+    ],
+    correctAnswer: 'B',
+
+    reveal: {
+      title: 'Doxxing 1,248 people deep — textbook GDPR violation',
+      verdict: 'B is correct',
+      points: [
+        {
+          icon: '🔴',
+          law: 'GDPR Art. 4(1)',
+          text: 'The Latvian personas kods IS personal data. It directly identifies a specific person, encodes their date of birth, and is linked to medical, tax, property and state records. Sharing it = sharing an identity key.',
+        },
+        {
+          icon: '🔴',
+          law: 'GDPR Art. 6',
+          text: 'Jānis had zero lawful basis. Not consent (the subject has no idea). Not legitimate interest (curiosity of 1,248 strangers does not outweigh the risk of identity theft, fraud, and stalking). Not contract. Nothing.',
+        },
+        {
+          icon: '🔴',
+          law: 'GDPR Art. 5(1)(f)',
+          text: 'Integrity & confidentiality: posting someone\'s ID code in a 1,248-member group creates a massive exposure risk. This data can be used to impersonate the person, access government e-services, and commit financial fraud.',
+        },
+        {
+          icon: '📋',
+          law: 'Liability',
+          text: 'Both Anna (posted photo, solicited the info) and Jānis (posted the data) are data controllers in breach of GDPR. Telegram bears potential DSA liability if notified and doesn\'t act. The subject can sue for damages + DPA complaint.',
+        },
+      ],
+    },
+
+    bonus: {
+      question: 'The personas kods encodes the person\'s date of birth. Does this make it "special category" data under GDPR Art. 9?',
+      options: [
+        { id: 'A', text: 'Yes — date of birth is health-adjacent, triggering Art. 9 extra protection' },
+        { id: 'B', text: 'No — it\'s regular personal data (Art. 4), but still strictly protected' },
+        { id: 'C', text: 'Yes — any government ID number is automatically special category data' },
+        { id: 'D', text: 'No — date of birth is public information, no protection applies' },
+      ],
+      correctAnswer: 'B',
+      explanation: 'Art. 9 "special categories" are: racial/ethnic origin, political opinions, religious beliefs, trade union membership, genetic/biometric data, health data, sex life/orientation. Date of birth and ID numbers are NOT Art. 9 — they\'re regular personal data under Art. 4. But "regular" still means you need a lawful basis under Art. 6. The personas kods is so powerful an identifier (linked to all state systems) that Latvia\'s own PDPA gives it additional protection beyond standard GDPR.',
+    },
+  },
+
 ]
 
 export const getRound = (id) => ROUNDS.find(r => r.id === id) || ROUNDS[0]
