@@ -99,7 +99,7 @@ export default function TeamPage() {
 
   // ── LOBBY ──────────────────────────────────────────────────────────────────
   if (g.status === 'lobby') {
-    const totalTeams = Object.keys(g.teams).length
+    const totalTeams = Object.keys(g.teams || {}).length
     return (
       <div className="min-h-screen bg-eu-dark flex flex-col">
         <Header />
@@ -321,7 +321,7 @@ export default function TeamPage() {
 
   // ── LEADERBOARD ────────────────────────────────────────────────────────────
   if (g.status === 'leaderboard') {
-    const sorted = Object.entries(g.teams)
+    const sorted = Object.entries(g.teams || {})
       .map(([id, t]) => ({ id, ...t }))
       .sort((a, b) => (b.score || 0) - (a.score || 0))
     const myRank = sorted.findIndex(t => t.id === effectiveTeamId) + 1

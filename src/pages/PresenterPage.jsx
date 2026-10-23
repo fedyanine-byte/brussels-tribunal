@@ -86,16 +86,16 @@ export default function PresenterPage() {
     </div>
   )
 
-  const teamList   = Object.entries(g.teams).map(([id, t]) => ({ id, ...t }))
+  const teamList   = Object.entries(g.teams || {}).map(([id, t]) => ({ id, ...t }))
   const teamCount  = teamList.length
-  const ansCount   = Object.keys(g.answers).length
-  const bonusCount = Object.keys(g.bonusAnswers).length
+  const ansCount   = Object.keys(g.answers || {}).length
+  const bonusCount = Object.keys(g.bonusAnswers || {}).length
   const allIn      = teamCount > 0 && ansCount >= teamCount
   const allBonusIn = teamCount > 0 && bonusCount >= teamCount
 
   const dist = (ans) => {
     const c = { A:0, B:0, C:0, D:0 }
-    Object.values(ans).forEach(a => { if (a.answer) c[a.answer]++ })
+    Object.values(ans || {}).forEach(a => { if (a?.answer) c[a.answer]++ })
     return c
   }
 
