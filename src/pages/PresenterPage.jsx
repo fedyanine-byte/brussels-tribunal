@@ -203,15 +203,19 @@ export default function PresenterPage() {
               </div>
             </div>
           ) : (
-            <div className="flex-1 rounded-3xl overflow-hidden bg-white/5 border border-white/10 relative min-h-0">
-              <img
-                src={`${BASE}${round.scenario.imageUrl}`}
-                alt={round.scenario.title}
-                className="w-full h-full object-contain"
-              />
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-8 py-6">
-                <p className="text-eu-gold font-black text-2xl mb-2">{round.scenario.title}</p>
-                <p className="text-white/80 text-lg leading-relaxed line-clamp-3">{round.scenario.text}</p>
+            <div className="flex-1 rounded-3xl overflow-hidden bg-white/5 border border-white/10 flex flex-col min-h-0">
+              {/* Image — shrinks to give text room */}
+              <div className="flex-1 min-h-0 overflow-hidden">
+                <img
+                  src={`${BASE}${round.scenario.imageUrl}`}
+                  alt={round.scenario.title}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              {/* Scenario text — always fully visible, scrolls if very long */}
+              <div className="flex-shrink-0 bg-black/80 border-t border-white/10 px-8 py-5 overflow-y-auto max-h-[38%]">
+                <p className="text-eu-gold font-black text-xl mb-2">{round.scenario.title}</p>
+                <p className="text-white/80 text-base leading-relaxed">{round.scenario.text}</p>
               </div>
             </div>
           )}
