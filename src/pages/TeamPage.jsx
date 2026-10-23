@@ -133,14 +133,6 @@ export default function TeamPage() {
           </div>
         </div>
 
-        {/* Scenario preview */}
-        <div className="mx-5 rounded-xl overflow-hidden border border-white/10 mb-4">
-          <img src={`${import.meta.env.BASE_URL}${round.scenario.imageUrl}`} alt="" className="w-full max-h-40 object-cover" />
-          <div className="bg-white/5 px-3 py-2">
-            <p className="text-white/50 text-xs">{round.scenario.title}</p>
-          </div>
-        </div>
-
         {/* Answer options */}
         <div className="flex-1 px-4 pb-6">
           {submitted ? (

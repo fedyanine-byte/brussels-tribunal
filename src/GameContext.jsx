@@ -59,7 +59,7 @@ export function GameProvider({ children }) {
     return { teamId, color }
   }
 
-  const startRound = (secs = 60) =>
+  const startRound = (secs = 120) =>
     update(ref(db, `games/${FIXED_CODE}`), {
       status:   'question',
       timerEnd: Date.now() + secs * 1000,

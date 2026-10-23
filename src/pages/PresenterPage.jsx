@@ -189,58 +189,56 @@ export default function PresenterPage() {
   if (g.status === 'question') {
     const d = dist(g.answers)
     return (
-      <div className="min-h-screen bg-gray-950 flex flex-col p-8 gap-6">
+      <div className="min-h-screen bg-gray-950 flex flex-col p-6 gap-4">
 
-        {/* Question + timer row */}
-        <div className="flex items-start gap-8">
+        {/* Question + timer row — full width, compact */}
+        <div className="flex items-center gap-6 flex-shrink-0">
           <div className="flex-1">
-            <p className="text-white/40 text-base uppercase tracking-widest mb-2">
+            <p className="text-white/40 text-sm uppercase tracking-widest mb-1">
               Round {round.number} · {round.theme}
             </p>
-            <p className="text-white font-black text-5xl leading-tight">{round.question}</p>
+            <p className="text-white font-black text-4xl leading-tight">{round.question}</p>
           </div>
-          <div className="flex items-center gap-6 flex-shrink-0 pt-2">
+          <div className="flex items-center gap-5 flex-shrink-0">
             <div className="text-center">
-              <p className="text-white/40 text-sm uppercase tracking-wider">Answers</p>
-              <p className="text-white font-black text-6xl tabular-nums">{ansCount}/{teamCount}</p>
+              <p className="text-white/40 text-xs uppercase tracking-wider">Answers</p>
+              <p className="text-white font-black text-6xl tabular-nums leading-none">{ansCount}/{teamCount}</p>
             </div>
             <TimerRing timerEnd={g.timerEnd} large />
           </div>
         </div>
 
-        {/* Image + live bars */}
-        <div className="flex gap-8 flex-1 min-h-0">
+        {/* IMAGE (hero, ~65%) + compact answer list (right, ~35%) */}
+        <div className="flex gap-5 flex-1 min-h-0">
 
-          {/* Scenario image */}
-          <div className="w-5/12 rounded-3xl overflow-hidden bg-white/5 border border-white/10 relative flex-shrink-0">
+          {/* Scenario image — DOMINATES */}
+          <div className="flex-1 rounded-3xl overflow-hidden bg-white/5 border border-white/10 relative">
             <img
               src={`${BASE}${round.scenario.imageUrl}`}
               alt={round.scenario.title}
               className="w-full h-full object-contain"
             />
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 p-5">
-              <p className="text-white font-bold text-xl">{round.scenario.title}</p>
-              <p className="text-white/50 text-base">{round.scenario.imageCaption}</p>
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-6">
+              <p className="text-white font-bold text-2xl">{round.scenario.title}</p>
+              <p className="text-white/60 text-base">{round.scenario.imageCaption}</p>
             </div>
           </div>
 
-          {/* Live answer bars — big */}
-          <div className="flex-1 card flex flex-col justify-center gap-5">
+          {/* Right column — compact answer list + reveal */}
+          <div className="w-72 flex flex-col gap-3 flex-shrink-0">
             {round.options.map(opt => {
               const count = d[opt.id] || 0
               const pct   = teamCount > 0 ? Math.round(count / teamCount * 100) : 0
               const col   = OPT[opt.id]
               return (
-                <div key={opt.id}>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3">
-                      <span className={`w-10 h-10 rounded-xl flex items-center justify-center
-                                       font-black text-white text-xl ${col.badge}`}>{opt.id}</span>
-                      <span className={`font-bold text-2xl ${col.text}`}>{opt.text}</span>
-                    </div>
-                    <span className="text-white font-black text-3xl tabular-nums">{count}</span>
+                <div key={opt.id} className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className={`w-9 h-9 rounded-xl flex items-center justify-center
+                                     font-black text-white text-lg flex-shrink-0 ${col.badge}`}>{opt.id}</span>
+                    <span className="text-white/80 font-semibold text-sm flex-1 leading-snug">{opt.text}</span>
+                    <span className="text-white font-black text-2xl tabular-nums">{count}</span>
                   </div>
-                  <div className="h-8 bg-white/10 rounded-full overflow-hidden">
+                  <div className="h-3 bg-white/10 rounded-full overflow-hidden">
                     <div className={`h-full rounded-full answer-bar ${col.bar}`}
                          style={{ width: `${pct}%` }} />
                   </div>
@@ -250,12 +248,12 @@ export default function PresenterPage() {
 
             <button
               onClick={() => revealAnswers()}
-              className={`mt-2 py-5 text-2xl font-black rounded-2xl transition-all
+              className={`mt-auto py-5 text-xl font-black rounded-2xl transition-all
                 ${allIn
                   ? 'bg-eu-gold text-eu-dark hover:bg-yellow-300 shadow-lg shadow-yellow-500/20'
                   : 'bg-white/10 text-white border-2 border-white/20 hover:bg-white/20'
                 }`}>
-              {allIn ? '✓ All answered — Reveal' : '⏭ Reveal now'}
+              {allIn ? '✓ Reveal' : '⏭ Reveal now'}
             </button>
           </div>
         </div>
@@ -266,48 +264,61 @@ export default function PresenterPage() {
   // ── REVEAL ────────────────────────────────────────────────────────────────
   if (g.status === 'reveal') {
     const d = dist(g.answers)
-    const maxC = Math.max(...Object.values(d), 1)
     const correctOpt = round.options.find(o => o.id === round.correctAnswer)
-    return (
-      <div className="min-h-screen bg-gray-950 flex flex-col p-8 gap-6">
 
-        {/* Correct answer banner */}
-        <div className="bg-emerald-500/15 border-2 border-emerald-500 rounded-3xl p-7
+    // Projected standings: current score + points if correct this round
+    const projectedTeams = teamList
+      .map(t => {
+        const got = g.answers?.[t.id]?.answer === round.correctAnswer
+        return { ...t, gained: got ? round.points : 0, projected: (t.score || 0) + (got ? round.points : 0) }
+      })
+      .sort((a, b) => b.projected - a.projected)
+
+    return (
+      <div className="min-h-screen bg-gray-950 flex flex-col p-6 gap-4">
+
+        {/* Correct answer banner — compact top bar */}
+        <div className="bg-emerald-500/15 border-2 border-emerald-500 rounded-2xl px-6 py-4
                         flex items-center justify-between flex-shrink-0">
           <div>
-            <p className="text-emerald-400 text-lg font-bold uppercase tracking-widest mb-1">✅ Correct Answer</p>
-            <p className="text-white font-black text-5xl">
+            <p className="text-emerald-400 text-sm font-bold uppercase tracking-widest mb-0.5">✅ Correct Answer</p>
+            <p className="text-white font-black text-4xl">
               {round.correctAnswer} — {correctOpt?.text}
             </p>
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-3">
             {round.bonus && (
               <button onClick={() => startBonus()}
                 className="bg-eu-gold/20 border-2 border-eu-gold text-eu-gold
-                           text-xl font-black px-7 py-4 rounded-2xl hover:bg-eu-gold/30 transition-all">
+                           text-lg font-black px-6 py-3 rounded-xl hover:bg-eu-gold/30 transition-all">
                 ⭐ Bonus
               </button>
             )}
             <button onClick={() => showLeaderboard(round)}
-              className="bg-eu-gold text-eu-dark text-xl font-black px-7 py-4
-                         rounded-2xl hover:bg-yellow-300 transition-all shadow-lg shadow-yellow-500/20">
-              🏆 Leaderboard
+              className="bg-eu-gold text-eu-dark text-lg font-black px-6 py-3
+                         rounded-xl hover:bg-yellow-300 transition-all shadow-lg shadow-yellow-500/20">
+              🏆 Full Leaderboard
+            </button>
+            <button onClick={() => restartRound()}
+              className="bg-white/10 text-white/60 text-lg font-bold px-4 py-3
+                         rounded-xl border border-white/20 hover:bg-white/20 transition-all">
+              🔄
             </button>
           </div>
         </div>
 
-        {/* Explanation (big) + bars (compact) */}
-        <div className="flex gap-8 flex-1 min-h-0">
+        {/* Explanation + LIVE RANKINGS side by side */}
+        <div className="flex gap-5 flex-1 min-h-0">
 
-          {/* Explanation — primary content, large text */}
+          {/* Explanation — primary, large text */}
           <div className="flex-1 card overflow-y-auto">
-            <p className="text-eu-gold font-black text-3xl mb-6">{round.reveal.title}</p>
-            <div className="flex flex-col gap-7">
+            <p className="text-eu-gold font-black text-3xl mb-5">{round.reveal.title}</p>
+            <div className="flex flex-col gap-6">
               {round.reveal.points.map((pt, i) => (
-                <div key={i} className="flex gap-5">
-                  <span className="text-4xl flex-shrink-0 mt-1">{pt.icon}</span>
+                <div key={i} className="flex gap-4">
+                  <span className="text-3xl flex-shrink-0 mt-1">{pt.icon}</span>
                   <div>
-                    <span className="text-eu-gold text-sm font-black uppercase tracking-widest block mb-2">{pt.law}</span>
+                    <span className="text-eu-gold text-xs font-black uppercase tracking-widest block mb-1">{pt.law}</span>
                     <p className="text-white text-2xl leading-relaxed">{pt.text}</p>
                   </div>
                 </div>
@@ -315,40 +326,55 @@ export default function PresenterPage() {
             </div>
           </div>
 
-          {/* Results bars — compact, right side */}
+          {/* RIGHT: Live standings — visible immediately, no button press needed */}
           <div className="w-80 flex flex-col gap-3 flex-shrink-0">
-            <p className="text-white/40 text-sm uppercase tracking-wider mb-1">Results</p>
-            {round.options.map(opt => {
-              const count = d[opt.id] || 0
-              const pct   = Math.round(count / maxC * 100)
-              const isCorrect = opt.id === round.correctAnswer
-              const col = OPT[opt.id]
-              return (
-                <div key={opt.id}
-                  className={`rounded-2xl p-4 border-2
-                    ${isCorrect ? 'bg-emerald-500/15 border-emerald-500' : 'bg-white/5 border-white/10'}`}>
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className={`w-9 h-9 rounded-lg flex items-center justify-center
-                                     font-black text-white text-base ${col.badge}`}>{opt.id}</span>
-                    <p className={`font-bold flex-1 text-base leading-snug
-                      ${isCorrect ? 'text-emerald-300' : 'text-white/70'}`}>
-                      {opt.text} {isCorrect && '✓'}
-                    </p>
-                    <span className="text-white font-black text-xl">{count}</span>
-                  </div>
-                  <div className="h-4 bg-white/10 rounded-full overflow-hidden">
-                    <div className={`h-full rounded-full answer-bar
-                      ${isCorrect ? 'bg-emerald-500' : col.bar}`}
-                      style={{ width: `${pct}%` }} />
-                  </div>
+            <p className="text-white/50 text-sm font-bold uppercase tracking-wider">
+              🏆 Standings after Round {round.number}
+            </p>
+            {projectedTeams.map((t, i) => (
+              <div key={t.id}
+                className={`flex items-center gap-3 px-4 py-3 rounded-2xl border-2
+                  ${i === 0 ? 'bg-eu-gold/15 border-eu-gold' : 'bg-white/5 border-white/10'}`}>
+                <span className="text-2xl w-8 text-center flex-shrink-0">
+                  {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : <span className="text-white/40 text-lg">{i+1}</span>}
+                </span>
+                <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: t.color }} />
+                <span className={`flex-1 font-bold text-base truncate ${i === 0 ? 'text-eu-gold' : 'text-white'}`}>
+                  {t.name}
+                </span>
+                <div className="text-right flex-shrink-0">
+                  <p className={`font-black text-xl tabular-nums ${i === 0 ? 'text-eu-gold' : 'text-white'}`}>
+                    {t.projected}
+                  </p>
+                  {t.gained > 0 && (
+                    <p className="text-emerald-400 text-xs font-bold">+{t.gained}</p>
+                  )}
                 </div>
-              )
-            })}
-            <button onClick={() => restartRound()}
-              className="mt-2 py-3 text-base font-bold rounded-xl
-                         bg-white/10 text-white/70 border border-white/20 hover:bg-white/20 transition-all">
-              🔄 Restart Round
-            </button>
+              </div>
+            ))}
+
+            {/* Answer distribution — compact */}
+            <div className="mt-2 bg-white/5 rounded-2xl p-4 border border-white/10">
+              <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Answer distribution</p>
+              {round.options.map(opt => {
+                const count = d[opt.id] || 0
+                const pct   = teamCount > 0 ? Math.round(count / teamCount * 100) : 0
+                const isCorrect = opt.id === round.correctAnswer
+                const col = OPT[opt.id]
+                return (
+                  <div key={opt.id} className="flex items-center gap-2 mb-2">
+                    <span className={`w-6 h-6 rounded-md flex items-center justify-center
+                                     font-black text-white text-xs flex-shrink-0 ${col.badge}`}>{opt.id}</span>
+                    <div className="flex-1 h-3 bg-white/10 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${isCorrect ? 'bg-emerald-500' : col.bar}`}
+                           style={{ width: `${pct}%` }} />
+                    </div>
+                    <span className={`font-black text-base tabular-nums w-5 text-right
+                      ${isCorrect ? 'text-emerald-400' : 'text-white/60'}`}>{count}</span>
+                  </div>
+                )
+              })}
+            </div>
           </div>
         </div>
       </div>
