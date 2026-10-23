@@ -145,7 +145,7 @@ export default function PresenterPage() {
   // ── LOBBY ──────────────────────────────────────────────────────────────────
   if (g.status === 'lobby') {
     return (
-      <div className="min-h-screen bg-eu-dark flex flex-col p-10">
+      <div className="h-screen overflow-hidden bg-eu-dark flex flex-col p-10">
 
         {/* Top bar */}
         <div className="flex items-start justify-between mb-8">
@@ -274,7 +274,7 @@ export default function PresenterPage() {
     const d = dist(g.answers)
 
     return (
-      <div className="min-h-screen bg-gray-950 flex flex-col p-6 gap-4">
+      <div className="h-screen overflow-hidden bg-gray-950 flex flex-col p-6 gap-4">
 
         {/* Question + timer row */}
         <div className="flex items-start gap-6 flex-shrink-0">
@@ -336,7 +336,7 @@ export default function PresenterPage() {
         ) : (
           <div className="flex gap-5 flex-1 min-h-0">
             {/* Scenario image — DOMINATES */}
-            <div className="flex-1 rounded-3xl overflow-hidden bg-white/5 border border-white/10 relative">
+            <div className="flex-1 rounded-3xl overflow-hidden bg-white/5 border border-white/10 relative min-h-0">
               <img
                 src={`${BASE}${round.scenario.imageUrl}`}
                 alt={round.scenario.title}
@@ -403,7 +403,7 @@ export default function PresenterPage() {
       const correctOpt = currentQ.options.find(o => o.id === currentQ.correctAnswer)
 
       return (
-        <div className="min-h-screen bg-gray-950 flex flex-col p-6 gap-4">
+        <div className="h-screen overflow-hidden bg-gray-950 flex flex-col p-6 gap-4">
 
           {/* Correct answer banner */}
           <div className="bg-emerald-500/15 border-2 border-emerald-500 rounded-2xl px-6 py-4
@@ -514,7 +514,7 @@ export default function PresenterPage() {
     const correctOpt = round.options.find(o => o.id === round.correctAnswer)
 
     return (
-      <div className="min-h-screen bg-gray-950 flex flex-col p-6 gap-4">
+      <div className="h-screen overflow-hidden bg-gray-950 flex flex-col p-6 gap-4">
 
         {/* Correct answer banner */}
         <div className="bg-emerald-500/15 border-2 border-emerald-500 rounded-2xl px-6 py-4
@@ -624,7 +624,7 @@ export default function PresenterPage() {
   if (g.status === 'bonus') {
     const d = dist(g.bonusAnswers)
     return (
-      <div className="min-h-screen bg-gray-950 flex flex-col p-8 gap-6">
+      <div className="h-screen overflow-hidden bg-gray-950 flex flex-col p-8 gap-6">
 
         <div className="flex items-start justify-between">
           <div>
@@ -683,7 +683,7 @@ export default function PresenterPage() {
     const maxC = Math.max(...Object.values(d), 1)
     const correctOpt = round.bonus.options.find(o => o.id === round.bonus.correctAnswer)
     return (
-      <div className="min-h-screen bg-gray-950 flex flex-col p-8 gap-6">
+      <div className="h-screen overflow-hidden bg-gray-950 flex flex-col p-8 gap-6">
 
         <div className="bg-emerald-500/15 border-2 border-emerald-500 rounded-3xl p-7
                         flex items-center justify-between flex-shrink-0">
