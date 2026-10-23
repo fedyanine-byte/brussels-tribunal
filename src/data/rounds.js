@@ -62,7 +62,7 @@ export const ROUNDS = [
         correctAnswer: 'C',
         points: 20,
         law: 'GDPR Art. 6 + Recital 47',
-        explanation: 'Legitimate interest fails when the individual\'s privacy interests clearly outweigh the company\'s interest. For cold marketing emails, consent is required. Recital 47 explicitly says LI can apply for direct marketing — but only to existing customers, not strangers.',
+        explanation: 'Legitimate interest fails when the individual\'s privacy interests clearly outweigh the company\'s interest. For cold marketing emails, consent is required. Recital 47 explicitly says legitimate interest can apply for direct marketing — but only to existing customers, not strangers.',
       },
       {
         id: 'q4',
@@ -504,20 +504,20 @@ The YouTuber replies: "I filmed in a public space. Legitimate interest covers me
     question: 'Is the YouTuber\'s "legitimate interest" defence valid under GDPR?',
     options: [
       { id: 'A', text: 'Yes — filming in a public space is automatic legitimate interest; the person filmed has no GDPR rights' },
-      { id: 'B', text: 'Possibly, but LI requires a 3-part balancing test AND the person can object — he must then act' },
+      { id: 'B', text: 'Possibly, but legitimate interest requires a 3-part balancing test AND the person can object — he must then act' },
       { id: 'C', text: 'No — legitimate interest can never justify filming identifiable people in public without consent' },
       { id: 'D', text: 'GDPR doesn\'t apply — YouTube is a US company and EU law doesn\'t reach it' },
     ],
     correctAnswer: 'B',
 
     reveal: {
-      title: 'LI is not a blank cheque — and Art. 21 gives her a veto',
+      title: 'Legitimate interest is not a blank cheque — and Art. 21 gives her a veto',
       verdict: 'B is correct',
       points: [
         {
           icon: '⚖️',
           law: 'GDPR Art. 6(1)(f) — Legitimate Interest',
-          text: 'LI can apply to street filming for journalistic, cultural or informational purposes. But it is NOT automatic. The YouTuber must pass the 3-part test: (1) pursue a legitimate purpose, (2) processing must be necessary, (3) individual\'s interests must not override his. City walks may pass parts 1–2, but part 3 is debatable.',
+          text: 'Legitimate interest can apply to street filming for journalistic, cultural or informational purposes. But it is NOT automatic. The YouTuber must pass the 3-part test: (1) pursue a legitimate purpose, (2) processing must be necessary, (3) individual\'s interests must not override his. City walks may pass parts 1–2, but part 3 is debatable.',
         },
         {
           icon: '🔴',
@@ -542,7 +542,7 @@ The YouTuber replies: "I filmed in a public space. Legitimate interest covers me
       options: [
         { id: 'A', text: 'Art. 15 — Right of access: she can demand to know what data he holds' },
         { id: 'B', text: 'Art. 17 — Right to erasure: no valid legal basis → she can demand deletion' },
-        { id: 'C', text: 'Art. 21 — Right to object: she objects to LI-based processing and he must demonstrate override grounds' },
+        { id: 'C', text: 'Art. 21 — Right to object: she objects to legitimate-interest-based processing and he must demonstrate override grounds' },
         { id: 'D', text: 'Art. 20 — Right to portability: she can demand he transfer the video to her' },
       ],
       correctAnswer: 'C',
