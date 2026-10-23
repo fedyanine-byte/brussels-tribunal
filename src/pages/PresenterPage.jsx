@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useGame } from '../GameContext'
-import { ROUNDS } from '../data/rounds'
+import { ROUNDS, getRound } from '../data/rounds'
 import TimerRing from '../components/TimerRing'
 
 // Answer option colour scheme
@@ -12,7 +12,6 @@ const OPT = {
 }
 
 const BASE  = import.meta.env.BASE_URL
-const round = ROUNDS[0]   // Round 1 (terminology warm-up)
 
 // Count answers from a Firebase object (null-safe)
 const dist = (ans) => {
@@ -57,7 +56,7 @@ export default function PresenterPage() {
   const {
     gameState, createGame,
     startRound, revealAnswers, startBonus, revealBonus,
-    showLeaderboard, restartRound, nextQuestion,
+    showLeaderboard, restartRound, nextQuestion, setRound,
   } = useGame()
 
   const [creating,   setCreating]   = useState(false)
@@ -68,7 +67,7 @@ export default function PresenterPage() {
     if (created) return
     setCreating(true)
     setCreateErr(null)
-    createGame(round.id)
+    createGame(ROUNDS[0].id)
       .then(() => { setCreated(true); setCreating(false) })
       .catch((err) => { setCreating(false); setCreateErr(err?.message || 'Firebase error') })
   }, [])
@@ -97,7 +96,7 @@ export default function PresenterPage() {
           <button
             onClick={() => {
               setCreateErr(null); setCreating(true)
-              createGame(round.id)
+              createGame(ROUNDS[0].id)
                 .then(() => { setCreated(true); setCreating(false) })
                 .catch(err => { setCreating(false); setCreateErr(err?.message || 'Firebase error') })
             }}
@@ -120,6 +119,9 @@ export default function PresenterPage() {
       </div>
     )
   }
+
+  // ── Round — derived from Firebase so setRound() updates UI for all clients ──
+  const round = getRound(gameState?.roundId) || ROUNDS[0]
 
   // ── Common derived state ───────────────────────────────────────────────────
   const g         = gameState
@@ -739,6 +741,9 @@ export default function PresenterPage() {
   // ── LEADERBOARD ───────────────────────────────────────────────────────────
   if (g.status === 'leaderboard') {
     const sorted = [...teamList].sort((a, b) => (b.score || 0) - (a.score || 0))
+    const currentRoundIdx = ROUNDS.findIndex(r => r.id === round.id)
+    const nextRound       = ROUNDS[currentRoundIdx + 1]
+
     return (
       <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center p-10">
         <div className="w-full max-w-3xl">
@@ -768,12 +773,26 @@ export default function PresenterPage() {
               </div>
             ))}
           </div>
-          <div className="flex justify-center mt-10">
+
+          {/* Round navigation */}
+          <div className="flex items-center justify-center gap-4 mt-10">
             <button onClick={() => restartRound()}
-              className="bg-white/10 text-white text-xl font-bold px-8 py-4
+              className="bg-white/10 text-white/60 text-lg font-bold px-6 py-4
                          rounded-2xl border border-white/20 hover:bg-white/20 transition-all">
-              🔄 Play Again
+              🔄 Play Round {round.number} Again
             </button>
+            {nextRound ? (
+              <button onClick={() => setRound(nextRound.id)}
+                className="bg-eu-gold text-eu-dark text-xl font-black px-10 py-5
+                           rounded-2xl hover:bg-yellow-300 transition-all
+                           shadow-xl shadow-yellow-500/20">
+                ▶ Round {nextRound.number}: {nextRound.title}
+              </button>
+            ) : (
+              <div className="text-white/30 text-lg px-6 py-4 border border-white/10 rounded-2xl">
+                🎓 All rounds complete
+              </div>
+            )}
           </div>
         </div>
       </div>

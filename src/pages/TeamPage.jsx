@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useGame } from '../GameContext'
-import { ROUNDS } from '../data/rounds'
+import { getRound, ROUNDS } from '../data/rounds'
 import TimerRing from '../components/TimerRing'
 
 const OPTION_COLORS = {
@@ -17,8 +17,6 @@ const OPTION_RING = {
   C: 'ring-amber-400',
   D: 'ring-emerald-500',
 }
-
-const round = ROUNDS[0]
 
 export default function TeamPage() {
   const { teamId } = useParams()
@@ -77,6 +75,9 @@ export default function TeamPage() {
       </div>
     )
   }
+
+  // Derive current round from Firebase so setRound() updates this page too
+  const round = getRound(g.roundId) || ROUNDS[0]
 
   const teamColor = myTeam?.color || '#fff'
   const teamName  = myTeam?.name  || 'Your Team'

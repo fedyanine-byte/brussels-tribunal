@@ -144,6 +144,17 @@ export function GameProvider({ children }) {
       questionIndex: 0,
     })
 
+  // Advance to a different round without wiping team scores
+  const setRound = (roundId) =>
+    update(ref(db, `games/${FIXED_CODE}`), {
+      roundId,
+      status:        'lobby',
+      questionIndex: 0,
+      answers:       null,
+      bonusAnswers:  null,
+      timerEnd:      null,
+    })
+
   const submitAnswer = (teamId, answer, isBonus = false) => {
     const path = isBonus
       ? `games/${FIXED_CODE}/bonusAnswers/${teamId}`
@@ -157,7 +168,7 @@ export function GameProvider({ children }) {
       createGame, joinGame, subscribe,
       startRound, revealAnswers, startBonus, revealBonus,
       showLeaderboard, restartRound, submitAnswer,
-      nextQuestion,
+      nextQuestion, setRound,
     }}>
       {children}
     </GameCtx.Provider>
