@@ -516,8 +516,8 @@ The YouTuber replies: "I filmed in a public space. Legitimate interest covers me
       points: [
         {
           icon: '⚖️',
-          law: 'GDPR Art. 6(1)(f) — Legitimate Interest',
-          text: 'Legitimate interest can apply to street filming for journalistic, cultural or informational purposes. But it is NOT automatic. The YouTuber must pass the 3-part test: (1) pursue a legitimate purpose, (2) processing must be necessary, (3) individual\'s interests must not override his. City walks may pass parts 1–2, but part 3 is debatable.',
+          law: 'GDPR Art. 6(1)(f) — Legitimate Interest: the 3-part test',
+          text: 'Legitimate interest is a permission slip that doesn\'t need the person\'s signature — but you still have to earn it. Step 1: do you have a real purpose? (City walk = cultural documentation — probably yes.) Step 2: did you actually need to film identifiable faces? Could blurring have achieved the same result? If yes, you took more data than necessary — fail. Step 3: would a reasonable person walking down the street expect their face to end up in a monetised YouTube video? Probably not. City walks may pass Step 1, Step 2 is debatable, Step 3 is where it breaks down.',
         },
         {
           icon: '🔴',
