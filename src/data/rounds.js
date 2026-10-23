@@ -406,6 +406,78 @@ The image is entirely synthetic — her face is real, the body is generated. She
     },
   },
 
+
+  // ── ROUND 6: The CSDD Breach ──────────────────────────────────────────────
+  {
+    id: 'round6',
+    number: 6,
+    title: 'The CSDD Breach',
+    theme: 'Data Breach Notification Obligations',
+    laws: ['GDPR'],
+    timerSeconds: 120,
+    points: 100,
+    bonusPoints: 50,
+
+    scenario: {
+      title: 'The CSDD Breach',
+      text: `CSDD (Ceļu satiksmes drošības direkcija) — Latvia's Road Traffic Safety Directorate — suffered a cybersecurity incident. Their databases hold driver's licence data, vehicle ownership records, home addresses, and medical fitness-to-drive assessments for virtually every driver in Latvia.
+
+CSDD published a public warning on their website and app: "In connection with the cybersecurity incident, we urge extra caution when receiving messages or calls appearing to be from CSDD or other institutions."
+
+The question is: what were CSDD's legal obligations under GDPR, and in what order?`,
+      imageUrl: 'csdd-breach.png',
+      imageCaption: 'CSDD\'s official cybersecurity incident warning published on e.csdd.lv',
+    },
+
+    question: 'Under GDPR, what was CSDD\'s FIRST mandatory obligation upon discovering the breach?',
+    options: [
+      { id: 'A', text: 'Notify all affected individuals immediately by post or email' },
+      { id: 'B', text: 'Notify the Data Protection Authority (DVI) within 72 hours with breach details' },
+      { id: 'C', text: 'Fix the security vulnerability first, then report only if actual harm occurred' },
+      { id: 'D', text: 'Issue a public press release — a website warning satisfies GDPR notification' },
+    ],
+    correctAnswer: 'B',
+
+    reveal: {
+      title: '72 hours to DVI — then assess if individuals must be told',
+      verdict: 'B is correct',
+      points: [
+        {
+          icon: '⏱️',
+          law: 'GDPR Art. 33',
+          text: 'Controllers must notify the supervisory authority (Latvia: Datu valsts inspekcija — DVI) within 72 hours of becoming aware of a breach. The notification must include: nature of breach, categories and approximate number of people affected, likely consequences, and measures taken.',
+        },
+        {
+          icon: '📢',
+          law: 'GDPR Art. 34',
+          text: 'If the breach is likely to result in HIGH RISK to affected individuals, the controller must ALSO notify those individuals — without undue delay. This is separate from and comes after the DPA notification. A website warning alone is not sufficient.',
+        },
+        {
+          icon: '🔴',
+          law: 'High Risk Trigger',
+          text: 'CSDD holds medical fitness-to-drive data — that\'s special category data under Art. 9. Any breach involving Art. 9 data is automatically considered high-risk. CSDD was almost certainly required to notify affected drivers individually, not just post a website warning.',
+        },
+        {
+          icon: '📋',
+          law: 'What CSDD got right / wrong',
+          text: 'Public warning ✅ — fulfils Art. 34 in a proportionate way when individual contact is impossible at scale. But a generic "be careful of phishing" message may not satisfy the Art. 34 requirement to explain the specific risk and what steps individuals can take.',
+        },
+      ],
+    },
+
+    bonus: {
+      question: 'CSDD holds medical fitness-to-drive assessments alongside driver data. How does this affect the breach severity under GDPR?',
+      options: [
+        { id: 'A', text: 'Medical data = Art. 9 special category → breach is automatically high-risk → individual notification required' },
+        { id: 'B', text: 'It doesn\'t change anything — all personal data breaches carry identical notification obligations' },
+        { id: 'C', text: 'Medical data is exempt from GDPR — health authorities operate under separate rules' },
+        { id: 'D', text: 'Only the doctors who issued assessments need to be notified, not the drivers themselves' },
+      ],
+      correctAnswer: 'A',
+      explanation: 'GDPR Art. 9 designates health data as special category — the highest-risk tier. When a breach involves special category data, the "high risk to rights and freedoms" threshold under Art. 34 is almost always met, triggering mandatory individual notification. Medical fitness data also reveals sensitive health conditions that could be used to discriminate against drivers in employment, insurance, or other contexts — exactly the harm GDPR Art. 34 is designed to prevent.',
+    },
+  },
+
 ]
 
 export const getRound = (id) => ROUNDS.find(r => r.id === id) || ROUNDS[0]
