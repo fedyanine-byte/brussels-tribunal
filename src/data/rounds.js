@@ -478,6 +478,78 @@ The question is: what were CSDD's legal obligations under GDPR, and in what orde
     },
   },
 
+
+  // ── ROUND 7: The YouTube Face ─────────────────────────────────────────────
+  {
+    id: 'round7',
+    number: 7,
+    title: 'The YouTube Face',
+    theme: 'Legitimate Interest vs Right to Object',
+    laws: ['GDPR'],
+    timerSeconds: 120,
+    points: 100,
+    bonusPoints: 50,
+
+    scenario: {
+      title: 'The YouTube Face',
+      text: `A Latvian YouTuber runs a popular "City Walks Rīga" channel with 48K subscribers. He films street scenes and publishes them unedited — no blurring, no cropping. Identifiable faces appear throughout.
+
+One viewer recognises herself walking near her workplace. She doesn't want her daily route or appearance linked to that location online. She emails the creator: "I never consented to being filmed. Remove the video or blur my face."
+
+The YouTuber replies: "I filmed in a public space. Legitimate interest covers me. I'm not doing anything wrong."`,
+      imageUrl: 'youtube-face.png',
+      imageCaption: 'Street video with faces blurred — the GDPR-compliant version of what the YouTuber posted without blurring',
+    },
+
+    question: 'Is the YouTuber\'s "legitimate interest" defence valid under GDPR?',
+    options: [
+      { id: 'A', text: 'Yes — filming in a public space is automatic legitimate interest; the person filmed has no GDPR rights' },
+      { id: 'B', text: 'Possibly, but LI requires a 3-part balancing test AND the person can object — he must then act' },
+      { id: 'C', text: 'No — legitimate interest can never justify filming identifiable people in public without consent' },
+      { id: 'D', text: 'GDPR doesn\'t apply — YouTube is a US company and EU law doesn\'t reach it' },
+    ],
+    correctAnswer: 'B',
+
+    reveal: {
+      title: 'LI is not a blank cheque — and Art. 21 gives her a veto',
+      verdict: 'B is correct',
+      points: [
+        {
+          icon: '⚖️',
+          law: 'GDPR Art. 6(1)(f) — Legitimate Interest',
+          text: 'LI can apply to street filming for journalistic, cultural or informational purposes. But it is NOT automatic. The YouTuber must pass the 3-part test: (1) pursue a legitimate purpose, (2) processing must be necessary, (3) individual\'s interests must not override his. City walks may pass parts 1–2, but part 3 is debatable.',
+        },
+        {
+          icon: '🔴',
+          law: 'GDPR Art. 21 — Right to Object',
+          text: 'When processing is based on legitimate interest, the data subject can OBJECT at any time. The controller must stop processing UNLESS they demonstrate compelling legitimate grounds that override the individual\'s interests. "I have 48K subscribers" is not a compelling ground.',
+        },
+        {
+          icon: '✅',
+          law: 'GDPR Art. 5(1)(c) — Data Minimisation',
+          text: 'The image shows the GDPR-compliant solution: blur the faces. If faces are blurred, there is no longer personal data — GDPR stops applying entirely. This is data minimisation in practice. The YouTuber could have avoided the entire problem by blurring from the start.',
+        },
+        {
+          icon: '📋',
+          law: 'Art. 3 — Territorial Scope',
+          text: 'GDPR applies because the subject is in the EU and the processing targets people in Latvia. YouTube\'s US incorporation is irrelevant — Art. 3(2) extends GDPR to any controller offering services to EU residents or monitoring their behaviour.',
+        },
+      ],
+    },
+
+    bonus: {
+      question: 'The woman wants the video taken down. Which GDPR right gives her the strongest and most direct remedy?',
+      options: [
+        { id: 'A', text: 'Art. 15 — Right of access: she can demand to know what data he holds' },
+        { id: 'B', text: 'Art. 17 — Right to erasure: no valid legal basis → she can demand deletion' },
+        { id: 'C', text: 'Art. 21 — Right to object: she objects to LI-based processing and he must demonstrate override grounds' },
+        { id: 'D', text: 'Art. 20 — Right to portability: she can demand he transfer the video to her' },
+      ],
+      correctAnswer: 'C',
+      explanation: 'Art. 21 is the sharper tool here. Since the YouTuber\'s only available basis is legitimate interest (Art. 6(1)(f)), Art. 21 lets her object — and he must stop processing UNLESS he shows compelling legitimate grounds that override her privacy interests. He cannot. Art. 17 erasure also applies (no valid basis remaining once objection succeeds), but Art. 21 is the direct trigger. Art. 15 (access) just gives her information. Art. 20 (portability) applies only to consent or contract-based processing.',
+    },
+  },
+
 ]
 
 export const getRound = (id) => ROUNDS.find(r => r.id === id) || ROUNDS[0]
