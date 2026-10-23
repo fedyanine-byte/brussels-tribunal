@@ -33,11 +33,18 @@ export default function TeamPage() {
   // Subscribe on mount (covers page refresh — fixed game slot, no code needed)
   useEffect(() => { subscribe() }, [])
 
-  // Reset answer state on status change
+  // Reset answer state whenever a new question starts
+  // questionIndex changes each time presenter calls nextQuestion()
   useEffect(() => {
-    if (gameState?.status === 'question') { setMyAnswer(null);      setSubmitted(false) }
-    if (gameState?.status === 'bonus')    { setMyBonusAnswer(null); setBonusSubmitted(false) }
-  }, [gameState?.status])
+    if (gameState?.status === 'question') {
+      setMyAnswer(null)
+      setSubmitted(false)
+    }
+    if (gameState?.status === 'bonus') {
+      setMyBonusAnswer(null)
+      setBonusSubmitted(false)
+    }
+  }, [gameState?.status, gameState?.questionIndex])   // ← questionIndex added
 
   const effectiveTeamId = myTeamId || teamId
 
@@ -74,6 +81,12 @@ export default function TeamPage() {
   const teamColor = myTeam?.color || '#fff'
   const teamName  = myTeam?.name  || 'Your Team'
 
+  // Multi-question helpers — used across all states
+  const isMultiQ = round.isMultiQuestion ?? false
+  const qi       = Math.min(g.questionIndex ?? 0, isMultiQ ? round.questions.length - 1 : 0)
+  const totalQ   = isMultiQ ? round.questions.length : 1
+  const currentQ = isMultiQ ? round.questions[qi] : round  // shape: { question, options, correctAnswer, points, law, explanation }
+
   // ── Team header (shown in all states) ──────────────────────────────────────
   const Header = () => (
     <div className="flex items-center gap-3 px-4 py-3 bg-black/30 border-b border-white/10 backdrop-blur">
@@ -102,6 +115,12 @@ export default function TeamPage() {
               <p className="text-white font-black text-2xl">{teamName}</p>
             </div>
           </div>
+          {isMultiQ && (
+            <div className="bg-eu-gold/10 border border-eu-gold/30 rounded-2xl px-6 py-4 mb-6 max-w-xs">
+              <p className="text-eu-gold font-bold text-sm">{totalQ} questions · {currentQ.points} pts each</p>
+              <p className="text-white/50 text-xs mt-1">{round.questionTimerSeconds}s per question</p>
+            </div>
+          )}
           <p className="text-white/30 text-sm">{totalTeams} team{totalTeams !== 1 ? 's' : ''} joined</p>
           <div className="mt-8 flex gap-2">
             {[0,1,2,3].map(i => (
@@ -120,15 +139,26 @@ export default function TeamPage() {
       <div className="min-h-screen bg-gray-950 flex flex-col">
         <Header />
 
-        {/* Timer + question */}
+        {/* Timer + question + progress */}
         <div className="px-5 pt-5 pb-3">
           <div className="flex items-start gap-4">
             <TimerRing timerEnd={g.timerEnd} />
-            <div className="flex-1">
-              <p className="text-eu-gold text-xs font-bold uppercase tracking-wider mb-1">
-                Round {round.number} · {round.points} pts
-              </p>
-              <p className="text-white font-bold text-lg leading-snug">{round.question}</p>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                {isMultiQ ? (
+                  <>
+                    <span className="bg-eu-gold/20 text-eu-gold text-xs font-black px-2 py-0.5 rounded-full uppercase">
+                      Q{qi + 1}/{totalQ}
+                    </span>
+                    <span className="text-white/40 text-xs">+{currentQ.points} pts</span>
+                  </>
+                ) : (
+                  <p className="text-eu-gold text-xs font-bold uppercase tracking-wider">
+                    Round {round.number} · {round.points} pts
+                  </p>
+                )}
+              </div>
+              <p className="text-white font-bold text-lg leading-snug">{currentQ.question}</p>
             </div>
           </div>
         </div>
@@ -139,17 +169,18 @@ export default function TeamPage() {
             <div className="flex flex-col items-center justify-center h-full gap-4 py-8">
               <div className="text-5xl">✅</div>
               <p className="text-white font-bold text-xl">Answer submitted!</p>
-              <div className={`bg-gradient-to-br ${OPTION_COLORS[myAnswer]} border rounded-2xl px-8 py-4 ring-4 ${OPTION_RING[myAnswer]}`}>
+              <div className={`bg-gradient-to-br ${OPTION_COLORS[myAnswer]} border rounded-2xl
+                               px-8 py-4 ring-4 ${OPTION_RING[myAnswer]} w-full max-w-xs`}>
                 <p className="text-white font-black text-2xl text-center">{myAnswer}</p>
                 <p className="text-white/80 text-sm text-center mt-1">
-                  {round.options.find(o => o.id === myAnswer)?.text}
+                  {currentQ.options.find(o => o.id === myAnswer)?.text}
                 </p>
               </div>
               <p className="text-white/40 text-sm">Waiting for other teams…</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-3 h-full">
-              {round.options.map(opt => (
+            <div className={`grid gap-3 h-full ${isMultiQ ? 'grid-cols-2' : 'grid-cols-2'}`}>
+              {currentQ.options.map(opt => (
                 <button
                   key={opt.id}
                   onClick={() => handleAnswer(opt.id)}
@@ -169,12 +200,16 @@ export default function TeamPage() {
 
   // ── REVEAL ─────────────────────────────────────────────────────────────────
   if (g.status === 'reveal') {
-    const isCorrect = myAnswer === round.correctAnswer
-    const didAnswer = !!myAnswer
+    const correctAnswer = currentQ.correctAnswer
+    const isCorrect     = myAnswer === correctAnswer
+    const didAnswer     = !!myAnswer
+    const correctText   = currentQ.options.find(o => o.id === correctAnswer)?.text
+
     return (
       <div className="min-h-screen bg-gray-950 flex flex-col">
         <Header />
-        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center gap-6">
+        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center gap-5">
+
           {didAnswer ? (
             <>
               <div className="text-7xl">{isCorrect ? '🎉' : '😬'}</div>
@@ -183,13 +218,15 @@ export default function TeamPage() {
                   {isCorrect ? 'Correct!' : 'Not quite'}
                 </p>
                 <p className="text-white/50">
-                  {isCorrect ? `+${round.points} points` : `Correct answer was ${round.correctAnswer}`}
+                  {isCorrect
+                    ? `+${currentQ.points} points`
+                    : `Correct answer was ${correctAnswer}`}
                 </p>
               </div>
               <div className={`rounded-2xl px-6 py-4 border w-full max-w-sm
                 ${isCorrect ? 'bg-emerald-500/15 border-emerald-500' : 'bg-white/5 border-white/10'}`}>
                 <p className={`font-bold text-lg ${isCorrect ? 'text-emerald-300' : 'text-white'}`}>
-                  {round.correctAnswer}: {round.options.find(o => o.id === round.correctAnswer)?.text}
+                  {correctAnswer}: {correctText}
                 </p>
               </div>
             </>
@@ -200,12 +237,31 @@ export default function TeamPage() {
               <p className="text-white/50">You didn't submit an answer</p>
               <div className="bg-white/5 border border-white/10 rounded-2xl px-6 py-4 w-full max-w-sm">
                 <p className="text-eu-gold font-bold">
-                  Correct: {round.correctAnswer} — {round.options.find(o => o.id === round.correctAnswer)?.text}
+                  Correct: {correctAnswer} — {correctText}
                 </p>
               </div>
             </>
           )}
-          <p className="text-white/30 text-sm mt-4">Watch the screen for the explanation</p>
+
+          {/* Explanation — shown for multi-question rounds on phone */}
+          {isMultiQ && currentQ.explanation && (
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 w-full max-w-sm text-left mt-2">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="bg-eu-gold/20 text-eu-gold text-xs font-black px-2 py-0.5 rounded-full uppercase">
+                  {currentQ.law}
+                </span>
+              </div>
+              <p className="text-white/70 text-sm leading-relaxed">{currentQ.explanation}</p>
+            </div>
+          )}
+
+          {isMultiQ ? (
+            <p className="text-white/30 text-sm">
+              {qi < totalQ - 1 ? `Question ${qi + 2} of ${totalQ} coming up…` : 'Round almost done!'}
+            </p>
+          ) : (
+            <p className="text-white/30 text-sm">Watch the screen for the explanation</p>
+          )}
         </div>
       </div>
     )
@@ -304,13 +360,14 @@ export default function TeamPage() {
     const sorted = Object.entries(g.teams || {})
       .map(([id, t]) => ({ id, ...t }))
       .sort((a, b) => (b.score || 0) - (a.score || 0))
-    const myRank = sorted.findIndex(t => t.id === effectiveTeamId) + 1
+    const myRank  = sorted.findIndex(t => t.id === effectiveTeamId) + 1
     const myScore = myTeam?.score || 0
 
     return (
       <div className="min-h-screen bg-gray-950 flex flex-col">
         <Header />
         <div className="flex-1 flex flex-col p-5 gap-4">
+
           {/* My result */}
           <div className={`rounded-2xl p-5 border text-center
             ${myRank === 1 ? 'bg-eu-gold/15 border-eu-gold' : 'bg-white/5 border-white/10'}`}>

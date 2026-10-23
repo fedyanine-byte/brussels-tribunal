@@ -33,9 +33,10 @@ export function GameProvider({ children }) {
 
   const createGame = async (roundId) => {
     await set(ref(db, `games/${FIXED_CODE}`), {
-      status:    'lobby',
+      status:        'lobby',
       roundId,
-      createdAt: Date.now(),
+      questionIndex: 0,
+      createdAt:     Date.now(),
     })
     subscribe()
   }
@@ -59,15 +60,39 @@ export function GameProvider({ children }) {
     return { teamId, color }
   }
 
+  // secs: timer duration in seconds (caller decides based on round type)
   const startRound = (secs = 120) =>
     update(ref(db, `games/${FIXED_CODE}`), {
-      status:   'question',
-      timerEnd: Date.now() + secs * 1000,
-      answers:  null,
+      status:        'question',
+      questionIndex: 0,   // always reset to first question
+      timerEnd:      Date.now() + secs * 1000,
+      answers:       null,
     })
 
   const revealAnswers = () =>
     update(ref(db, `games/${FIXED_CODE}`), { status: 'reveal' })
+
+  // Multi-question: score current question qi, advance to qi+1
+  const nextQuestion = async (round, qi) => {
+    const snap = await get(ref(db, `games/${FIXED_CODE}`))
+    const game  = snap.val()
+    const q     = round.questions[qi]
+    const teams = { ...(game.teams || {}) }
+
+    // Write scores for this question
+    Object.entries(game.answers || {}).forEach(([tid, a]) => {
+      if (a.answer === q.correctAnswer)
+        teams[tid] = { ...teams[tid], score: (teams[tid]?.score || 0) + q.points }
+    })
+
+    await update(ref(db, `games/${FIXED_CODE}`), {
+      status:        'question',
+      questionIndex: qi + 1,
+      timerEnd:      Date.now() + (round.questionTimerSeconds || 60) * 1000,
+      answers:       null,
+      teams,
+    })
+  }
 
   const startBonus = (secs = 45) =>
     update(ref(db, `games/${FIXED_CODE}`), {
@@ -79,29 +104,44 @@ export function GameProvider({ children }) {
   const revealBonus = () =>
     update(ref(db, `games/${FIXED_CODE}`), { status: 'bonus_reveal' })
 
+  // showLeaderboard: scores the final question/bonus, then goes to leaderboard
   const showLeaderboard = async (round) => {
     const snap = await get(ref(db, `games/${FIXED_CODE}`))
     const game  = snap.val()
     const teams = { ...(game.teams || {}) }
 
-    Object.entries(game.answers || {}).forEach(([tid, a]) => {
-      if (a.answer === round.correctAnswer)
-        teams[tid] = { ...teams[tid], score: (teams[tid]?.score || 0) + round.points }
-    })
-    Object.entries(game.bonusAnswers || {}).forEach(([tid, a]) => {
-      if (round.bonus && a.answer === round.bonus.correctAnswer)
-        teams[tid] = { ...teams[tid], score: (teams[tid]?.score || 0) + round.bonusPoints }
-    })
+    if (round.isMultiQuestion) {
+      // Score the last question (current questionIndex)
+      const qi = game.questionIndex ?? 0
+      const q  = round.questions[qi]
+      if (q) {
+        Object.entries(game.answers || {}).forEach(([tid, a]) => {
+          if (a.answer === q.correctAnswer)
+            teams[tid] = { ...teams[tid], score: (teams[tid]?.score || 0) + q.points }
+        })
+      }
+    } else {
+      // Single-question scoring: main question + bonus
+      Object.entries(game.answers || {}).forEach(([tid, a]) => {
+        if (a.answer === round.correctAnswer)
+          teams[tid] = { ...teams[tid], score: (teams[tid]?.score || 0) + round.points }
+      })
+      Object.entries(game.bonusAnswers || {}).forEach(([tid, a]) => {
+        if (round.bonus && a.answer === round.bonus.correctAnswer)
+          teams[tid] = { ...teams[tid], score: (teams[tid]?.score || 0) + round.bonusPoints }
+      })
+    }
 
     await update(ref(db, `games/${FIXED_CODE}`), { status: 'leaderboard', teams })
   }
 
   const restartRound = () =>
     update(ref(db, `games/${FIXED_CODE}`), {
-      status:       'lobby',
-      answers:      null,
-      bonusAnswers: null,
-      timerEnd:     null,
+      status:        'lobby',
+      answers:       null,
+      bonusAnswers:  null,
+      timerEnd:      null,
+      questionIndex: 0,
     })
 
   const submitAnswer = (teamId, answer, isBonus = false) => {
@@ -117,6 +157,7 @@ export function GameProvider({ children }) {
       createGame, joinGame, subscribe,
       startRound, revealAnswers, startBonus, revealBonus,
       showLeaderboard, restartRound, submitAnswer,
+      nextQuestion,
     }}>
       {children}
     </GameCtx.Provider>

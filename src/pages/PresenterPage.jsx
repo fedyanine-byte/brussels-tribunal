@@ -11,8 +11,8 @@ const OPT = {
   D: { bar: 'bg-emerald-500', text: 'text-emerald-300', badge: 'bg-emerald-500' },
 }
 
-const BASE = import.meta.env.BASE_URL
-const round = ROUNDS[0]
+const BASE  = import.meta.env.BASE_URL
+const round = ROUNDS[0]   // Round 1 (terminology warm-up)
 
 // Count answers from a Firebase object (null-safe)
 const dist = (ans) => {
@@ -21,11 +21,43 @@ const dist = (ans) => {
   return c
 }
 
+// Law description cards shown in Round 1 lobby
+const LAW_CARDS = [
+  { law: 'GDPR', full: 'General Data Protection Regulation', desc: 'Personal data rights & obligations', year: '2018' },
+  { law: 'DSA',  full: 'Digital Services Act',               desc: 'Platform accountability & illegal content', year: '2024' },
+  { law: 'DMA',  full: 'Digital Markets Act',                desc: 'Big tech gatekeeper control', year: '2023' },
+  { law: 'AI Act', full: 'Artificial Intelligence Act',      desc: 'AI risk classification & bans', year: '2024' },
+]
+
+// Progress pills showing which questions are done / current / upcoming
+function QuestionProgress({ total, current, compact = false }) {
+  return (
+    <div className="flex items-center gap-2">
+      {Array.from({ length: total }, (_, i) => (
+        <div
+          key={i}
+          className={`rounded-full transition-all ${
+            compact ? 'h-2' : 'h-3'
+          } ${
+            i < current  ? 'bg-emerald-500' :
+            i === current ? 'bg-eu-gold' :
+            'bg-white/20'
+          }`}
+          style={{ width: compact ? '1.5rem' : '2rem' }}
+        />
+      ))}
+      <span className={`text-eu-gold font-bold ${compact ? 'text-xs' : 'text-sm'} ml-1`}>
+        Q{current + 1}/{total}
+      </span>
+    </div>
+  )
+}
+
 export default function PresenterPage() {
   const {
     gameState, createGame,
     startRound, revealAnswers, startBonus, revealBonus,
-    showLeaderboard, restartRound,
+    showLeaderboard, restartRound, nextQuestion,
   } = useGame()
 
   const [creating,   setCreating]   = useState(false)
@@ -49,9 +81,7 @@ export default function PresenterPage() {
           <div className="text-5xl mb-4">🔥</div>
           <p className="text-red-400 font-bold text-2xl mb-2">Firebase not responding</p>
           <p className="text-white/40 text-sm font-mono break-all mb-6">{createErr}</p>
-          <p className="text-white/30 text-sm mb-3">
-            Firebase Console → Realtime Database → Rules:
-          </p>
+          <p className="text-white/30 text-sm mb-3">Firebase Console → Realtime Database → Rules:</p>
           <pre className="bg-white/5 text-green-300 text-xs text-left rounded-xl p-4 mb-6">
 {`{
   "rules": {
@@ -92,13 +122,21 @@ export default function PresenterPage() {
   }
 
   // ── Common derived state ───────────────────────────────────────────────────
-  const g          = gameState
-  const teamList   = Object.entries(g.teams || {}).map(([id, t]) => ({ id, ...t }))
-  const teamCount  = teamList.length
-  const ansCount   = Object.keys(g.answers || {}).length
+  const g         = gameState
+  const teamList  = Object.entries(g.teams || {}).map(([id, t]) => ({ id, ...t }))
+  const teamCount = teamList.length
+  const ansCount  = Object.keys(g.answers || {}).length
   const bonusCount = Object.keys(g.bonusAnswers || {}).length
-  const allIn      = teamCount > 0 && ansCount >= teamCount
+  const allIn     = teamCount > 0 && ansCount >= teamCount
   const allBonusIn = teamCount > 0 && bonusCount >= teamCount
+
+  // Multi-question helpers
+  const isMultiQ  = round.isMultiQuestion ?? false
+  const qi        = Math.min(g.questionIndex ?? 0, isMultiQ ? round.questions.length - 1 : 0)
+  const currentQ  = isMultiQ ? round.questions[qi] : round
+  const totalQ    = isMultiQ ? round.questions.length : 1
+  const isLastQ   = isMultiQ ? qi >= totalQ - 1 : true
+  const timerSecs = isMultiQ ? (round.questionTimerSeconds || 60) : (round.timerSeconds || 120)
 
   const joinUrl = `${window.location.origin}${BASE}join`
 
@@ -122,18 +160,59 @@ export default function PresenterPage() {
 
         <div className="flex gap-8 flex-1 min-h-0">
 
-          {/* Scenario image — fills entire left column, caption overlay */}
-          <div className="flex-1 rounded-3xl overflow-hidden bg-white/5 border border-white/10 relative min-h-0">
-            <img
-              src={`${BASE}${round.scenario.imageUrl}`}
-              alt={round.scenario.title}
-              className="w-full h-full object-contain"
-            />
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-8 py-6">
-              <p className="text-eu-gold font-black text-2xl mb-2">{round.scenario.title}</p>
-              <p className="text-white/80 text-lg leading-relaxed line-clamp-3">{round.scenario.text}</p>
+          {/* Left: scenario image (single-Q) or law cards (multi-Q) */}
+          {isMultiQ ? (
+            <div className="flex-1 rounded-3xl bg-white/5 border border-white/10 p-10 flex flex-col gap-8 min-h-0">
+              <div>
+                <p className="text-eu-gold font-black text-3xl mb-3">{round.scenario.title}</p>
+                <p className="text-white/70 text-xl leading-relaxed mb-6">{round.scenario.text}</p>
+                <div className="flex items-center gap-6">
+                  <div className="text-center">
+                    <p className="text-white font-black text-6xl">{totalQ}</p>
+                    <p className="text-white/40 text-sm uppercase tracking-wider">questions</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-eu-gold font-black text-6xl">{currentQ.points}</p>
+                    <p className="text-white/40 text-sm uppercase tracking-wider">pts each</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-white font-black text-6xl">{totalQ * (currentQ.points || 20)}</p>
+                    <p className="text-white/40 text-sm uppercase tracking-wider">pts total</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-white font-black text-6xl">{round.questionTimerSeconds || 60}s</p>
+                    <p className="text-white/40 text-sm uppercase tracking-wider">per question</p>
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 flex-1">
+                {LAW_CARDS.map(({ law, full, desc, year }) => (
+                  <div key={law} className="bg-eu-gold/8 border border-eu-gold/25 rounded-2xl p-6 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-start justify-between mb-2">
+                        <p className="text-eu-gold font-black text-3xl">{law}</p>
+                        <span className="text-white/30 text-sm font-mono">{year}</span>
+                      </div>
+                      <p className="text-white/50 text-xs uppercase tracking-wider mb-1">{full}</p>
+                    </div>
+                    <p className="text-white/80 text-lg font-semibold">{desc}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="flex-1 rounded-3xl overflow-hidden bg-white/5 border border-white/10 relative min-h-0">
+              <img
+                src={`${BASE}${round.scenario.imageUrl}`}
+                alt={round.scenario.title}
+                className="w-full h-full object-contain"
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-8 py-6">
+                <p className="text-eu-gold font-black text-2xl mb-2">{round.scenario.title}</p>
+                <p className="text-white/80 text-lg leading-relaxed line-clamp-3">{round.scenario.text}</p>
+              </div>
+            </div>
+          )}
 
           {/* Right column: QR + teams + start */}
           <div className="w-88 flex flex-col gap-5" style={{ width: '22rem' }}>
@@ -172,7 +251,7 @@ export default function PresenterPage() {
 
             {/* Start button */}
             <button
-              onClick={() => startRound()}
+              onClick={() => startRound(timerSecs)}
               disabled={teamCount === 0}
               className="py-7 text-3xl font-black rounded-2xl bg-eu-gold text-eu-dark
                          hover:bg-yellow-300 transition-all shadow-xl shadow-yellow-500/20
@@ -191,18 +270,24 @@ export default function PresenterPage() {
   // ── QUESTION ──────────────────────────────────────────────────────────────
   if (g.status === 'question') {
     const d = dist(g.answers)
+
     return (
       <div className="min-h-screen bg-gray-950 flex flex-col p-6 gap-4">
 
-        {/* Question + timer row — full width, compact */}
-        <div className="flex items-center gap-6 flex-shrink-0">
+        {/* Question + timer row */}
+        <div className="flex items-start gap-6 flex-shrink-0">
           <div className="flex-1">
+            {isMultiQ && (
+              <div className="mb-2">
+                <QuestionProgress total={totalQ} current={qi} compact />
+              </div>
+            )}
             <p className="text-white/40 text-sm uppercase tracking-widest mb-1">
-              Round {round.number} · {round.theme}
+              Round {round.number} · {isMultiQ ? `${currentQ.points} pts` : round.theme}
             </p>
-            <p className="text-white font-black text-4xl leading-tight">{round.question}</p>
+            <p className="text-white font-black text-4xl leading-tight">{currentQ.question}</p>
           </div>
-          <div className="flex items-center gap-5 flex-shrink-0">
+          <div className="flex items-center gap-5 flex-shrink-0 pt-2">
             <div className="text-center">
               <p className="text-white/40 text-xs uppercase tracking-wider">Answers</p>
               <p className="text-white font-black text-6xl tabular-nums leading-none">{ansCount}/{teamCount}</p>
@@ -211,55 +296,88 @@ export default function PresenterPage() {
           </div>
         </div>
 
-        {/* IMAGE (hero, ~65%) + compact answer list (right, ~35%) */}
-        <div className="flex gap-5 flex-1 min-h-0">
-
-          {/* Scenario image — DOMINATES */}
-          <div className="flex-1 rounded-3xl overflow-hidden bg-white/5 border border-white/10 relative">
-            <img
-              src={`${BASE}${round.scenario.imageUrl}`}
-              alt={round.scenario.title}
-              className="w-full h-full object-contain"
-            />
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-6">
-              <p className="text-white font-bold text-2xl">{round.scenario.title}</p>
-              <p className="text-white/60 text-base">{round.scenario.imageCaption}</p>
+        {/* Multi-Q: full-width 2×2 option grid (no image) */}
+        {/* Single-Q: image hero + compact sidebar */}
+        {isMultiQ ? (
+          <div className="flex flex-col gap-4 flex-1 min-h-0">
+            <div className="grid grid-cols-2 gap-4 flex-1">
+              {currentQ.options.map(opt => {
+                const count = d[opt.id] || 0
+                const pct   = teamCount > 0 ? Math.round(count / teamCount * 100) : 0
+                const col   = OPT[opt.id]
+                return (
+                  <div key={opt.id} className="bg-white/5 rounded-3xl p-6 border border-white/10 flex flex-col justify-between">
+                    <div className="flex items-start gap-4 mb-4">
+                      <span className={`w-12 h-12 rounded-xl flex items-center justify-center
+                                       font-black text-white text-2xl flex-shrink-0 ${col.badge}`}>{opt.id}</span>
+                      <p className="text-white font-bold text-2xl flex-1 leading-snug">{opt.text}</p>
+                      <span className="text-white font-black text-4xl tabular-nums leading-none">{count}</span>
+                    </div>
+                    <div className="h-4 bg-white/10 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full answer-bar ${col.bar}`}
+                           style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                )
+              })}
             </div>
-          </div>
-
-          {/* Right column — compact answer list + reveal */}
-          <div className="w-72 flex flex-col gap-3 flex-shrink-0">
-            {round.options.map(opt => {
-              const count = d[opt.id] || 0
-              const pct   = teamCount > 0 ? Math.round(count / teamCount * 100) : 0
-              const col   = OPT[opt.id]
-              return (
-                <div key={opt.id} className="bg-white/5 rounded-2xl p-4 border border-white/10">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className={`w-9 h-9 rounded-xl flex items-center justify-center
-                                     font-black text-white text-lg flex-shrink-0 ${col.badge}`}>{opt.id}</span>
-                    <span className="text-white/80 font-semibold text-sm flex-1 leading-snug">{opt.text}</span>
-                    <span className="text-white font-black text-2xl tabular-nums">{count}</span>
-                  </div>
-                  <div className="h-3 bg-white/10 rounded-full overflow-hidden">
-                    <div className={`h-full rounded-full answer-bar ${col.bar}`}
-                         style={{ width: `${pct}%` }} />
-                  </div>
-                </div>
-              )
-            })}
-
             <button
               onClick={() => revealAnswers()}
-              className={`mt-auto py-5 text-xl font-black rounded-2xl transition-all
+              className={`self-end px-12 py-5 text-2xl font-black rounded-2xl transition-all
                 ${allIn
                   ? 'bg-eu-gold text-eu-dark hover:bg-yellow-300 shadow-lg shadow-yellow-500/20'
                   : 'bg-white/10 text-white border-2 border-white/20 hover:bg-white/20'
                 }`}>
-              {allIn ? '✓ Reveal' : '⏭ Reveal now'}
+              {allIn ? '✓ Reveal Answer' : '⏭ Reveal Now'}
             </button>
           </div>
-        </div>
+        ) : (
+          <div className="flex gap-5 flex-1 min-h-0">
+            {/* Scenario image — DOMINATES */}
+            <div className="flex-1 rounded-3xl overflow-hidden bg-white/5 border border-white/10 relative">
+              <img
+                src={`${BASE}${round.scenario.imageUrl}`}
+                alt={round.scenario.title}
+                className="w-full h-full object-contain"
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-6">
+                <p className="text-white font-bold text-2xl">{round.scenario.title}</p>
+                <p className="text-white/60 text-base">{round.scenario.imageCaption}</p>
+              </div>
+            </div>
+            {/* Right column — compact answer list + reveal */}
+            <div className="w-72 flex flex-col gap-3 flex-shrink-0">
+              {round.options.map(opt => {
+                const count = d[opt.id] || 0
+                const pct   = teamCount > 0 ? Math.round(count / teamCount * 100) : 0
+                const col   = OPT[opt.id]
+                return (
+                  <div key={opt.id} className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className={`w-9 h-9 rounded-xl flex items-center justify-center
+                                       font-black text-white text-lg flex-shrink-0 ${col.badge}`}>{opt.id}</span>
+                      <span className="text-white/80 font-semibold text-sm flex-1 leading-snug">{opt.text}</span>
+                      <span className="text-white font-black text-2xl tabular-nums">{count}</span>
+                    </div>
+                    <div className="h-3 bg-white/10 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full answer-bar ${col.bar}`}
+                           style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                )
+              })}
+              <button
+                onClick={() => revealAnswers()}
+                className={`mt-auto py-5 text-xl font-black rounded-2xl transition-all
+                  ${allIn
+                    ? 'bg-eu-gold text-eu-dark hover:bg-yellow-300 shadow-lg shadow-yellow-500/20'
+                    : 'bg-white/10 text-white border-2 border-white/20 hover:bg-white/20'
+                  }`}>
+                {allIn ? '✓ Reveal' : '⏭ Reveal now'}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     )
   }
@@ -267,20 +385,136 @@ export default function PresenterPage() {
   // ── REVEAL ────────────────────────────────────────────────────────────────
   if (g.status === 'reveal') {
     const d = dist(g.answers)
-    const correctOpt = round.options.find(o => o.id === round.correctAnswer)
 
-    // Projected standings: current score + points if correct this round
+    // Projected standings — works for both modes
     const projectedTeams = teamList
       .map(t => {
-        const got = g.answers?.[t.id]?.answer === round.correctAnswer
-        return { ...t, gained: got ? round.points : 0, projected: (t.score || 0) + (got ? round.points : 0) }
+        const correct = isMultiQ ? currentQ.correctAnswer : round.correctAnswer
+        const pts     = isMultiQ ? currentQ.points       : round.points
+        const got     = g.answers?.[t.id]?.answer === correct
+        return { ...t, gained: got ? pts : 0, projected: (t.score || 0) + (got ? pts : 0) }
       })
       .sort((a, b) => b.projected - a.projected)
+
+    if (isMultiQ) {
+      // ── MULTI-Q REVEAL ─────────────────────────────────────────────────────
+      const correctOpt = currentQ.options.find(o => o.id === currentQ.correctAnswer)
+
+      return (
+        <div className="min-h-screen bg-gray-950 flex flex-col p-6 gap-4">
+
+          {/* Correct answer banner */}
+          <div className="bg-emerald-500/15 border-2 border-emerald-500 rounded-2xl px-6 py-4
+                          flex items-center justify-between flex-shrink-0">
+            <div>
+              <div className="flex items-center gap-3 mb-1">
+                <span className="text-emerald-400 text-sm font-bold uppercase tracking-widest">✅ Correct Answer</span>
+                <span className="bg-eu-gold/20 text-eu-gold text-xs font-black px-3 py-0.5 rounded-full uppercase">
+                  {currentQ.law}
+                </span>
+              </div>
+              <p className="text-white font-black text-3xl">
+                {currentQ.correctAnswer} — {correctOpt?.text}
+              </p>
+            </div>
+            <div className="flex gap-3 items-center">
+              <QuestionProgress total={totalQ} current={qi} />
+              <div className="w-px h-10 bg-white/10" />
+              {isLastQ ? (
+                <button onClick={() => showLeaderboard(round)}
+                  className="bg-eu-gold text-eu-dark text-lg font-black px-6 py-3
+                             rounded-xl hover:bg-yellow-300 transition-all shadow-lg shadow-yellow-500/20">
+                  🏆 End Round
+                </button>
+              ) : (
+                <button onClick={() => nextQuestion(round, qi)}
+                  className="bg-eu-gold text-eu-dark text-lg font-black px-6 py-3
+                             rounded-xl hover:bg-yellow-300 transition-all shadow-lg shadow-yellow-500/20">
+                  → Q{qi + 2}
+                </button>
+              )}
+              <button onClick={() => restartRound()}
+                className="bg-white/10 text-white/60 text-lg font-bold px-4 py-3
+                           rounded-xl border border-white/20 hover:bg-white/20 transition-all">
+                🔄
+              </button>
+            </div>
+          </div>
+
+          {/* Explanation + live standings */}
+          <div className="flex gap-5 flex-1 min-h-0">
+
+            {/* Explanation — primary */}
+            <div className="flex-1 card flex flex-col">
+              <p className="text-white font-black text-4xl leading-tight mb-6">{currentQ.question}</p>
+              <div className="flex-1 flex flex-col justify-center">
+                <p className="text-eu-gold font-black text-xl mb-3 uppercase tracking-wide">{currentQ.law} — Explanation</p>
+                <p className="text-white text-2xl leading-relaxed">{currentQ.explanation}</p>
+              </div>
+            </div>
+
+            {/* Right: standings + answer distribution */}
+            <div className="w-80 flex flex-col gap-3 flex-shrink-0">
+              <p className="text-white/50 text-sm font-bold uppercase tracking-wider">
+                📊 Running Scores
+              </p>
+              {projectedTeams.map((t, i) => (
+                <div key={t.id}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-2xl border-2
+                    ${i === 0 ? 'bg-eu-gold/15 border-eu-gold' : 'bg-white/5 border-white/10'}`}>
+                  <span className="text-2xl w-8 text-center flex-shrink-0">
+                    {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : <span className="text-white/40 text-lg">{i+1}</span>}
+                  </span>
+                  <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: t.color }} />
+                  <span className={`flex-1 font-bold text-base truncate ${i === 0 ? 'text-eu-gold' : 'text-white'}`}>
+                    {t.name}
+                  </span>
+                  <div className="text-right flex-shrink-0">
+                    <p className={`font-black text-xl tabular-nums ${i === 0 ? 'text-eu-gold' : 'text-white'}`}>
+                      {t.projected}
+                    </p>
+                    {t.gained > 0 && (
+                      <p className="text-emerald-400 text-xs font-bold">+{t.gained}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              {/* Answer distribution */}
+              <div className="mt-2 bg-white/5 rounded-2xl p-4 border border-white/10">
+                <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Answer distribution</p>
+                {currentQ.options.map(opt => {
+                  const count = d[opt.id] || 0
+                  const pct   = teamCount > 0 ? Math.round(count / teamCount * 100) : 0
+                  const isCorrect = opt.id === currentQ.correctAnswer
+                  const col = OPT[opt.id]
+                  return (
+                    <div key={opt.id} className="flex items-center gap-2 mb-2">
+                      <span className={`w-6 h-6 rounded-md flex items-center justify-center
+                                       font-black text-white text-xs flex-shrink-0 ${col.badge}`}>{opt.id}</span>
+                      <div className="flex-1 h-3 bg-white/10 rounded-full overflow-hidden">
+                        <div className={`h-full rounded-full ${isCorrect ? 'bg-emerald-500' : col.bar}`}
+                             style={{ width: `${pct}%` }} />
+                      </div>
+                      <span className={`font-black text-base tabular-nums w-5 text-right
+                        ${isCorrect ? 'text-emerald-400' : 'text-white/60'}`}>{count}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // ── SINGLE-Q REVEAL (Round 3+) ─────────────────────────────────────────
+    const correctOpt = round.options.find(o => o.id === round.correctAnswer)
 
     return (
       <div className="min-h-screen bg-gray-950 flex flex-col p-6 gap-4">
 
-        {/* Correct answer banner — compact top bar */}
+        {/* Correct answer banner */}
         <div className="bg-emerald-500/15 border-2 border-emerald-500 rounded-2xl px-6 py-4
                         flex items-center justify-between flex-shrink-0">
           <div>
@@ -329,7 +563,7 @@ export default function PresenterPage() {
             </div>
           </div>
 
-          {/* RIGHT: Live standings — visible immediately, no button press needed */}
+          {/* RIGHT: Live standings — visible immediately */}
           <div className="w-80 flex flex-col gap-3 flex-shrink-0">
             <p className="text-white/50 text-sm font-bold uppercase tracking-wider">
               🏆 Standings after Round {round.number}
