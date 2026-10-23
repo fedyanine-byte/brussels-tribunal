@@ -550,6 +550,78 @@ The YouTuber replies: "I filmed in a public space. Legitimate interest covers me
     },
   },
 
+
+  // ── ROUND 8: The Loan Robot ───────────────────────────────────────────────
+  {
+    id: 'round8',
+    number: 8,
+    title: 'The Loan Robot',
+    theme: 'Automated Decisions & AI Act High-Risk',
+    laws: ['GDPR', 'AI Act'],
+    timerSeconds: 120,
+    points: 100,
+    bonusPoints: 50,
+
+    scenario: {
+      title: 'The Loan Robot',
+      text: `Vivus.lv's system approves or rejects loan applications automatically — "Lēmums pieņemts automātiski dažu sekunžu laikā" (decision made automatically in seconds). No human reviews it.
+
+Māris applies for a €300 loan to fix his car — he needs it for work. Automatic rejection. No reason given. No human contact.
+
+Māris knows an old disputed debt (which he never actually owed and was later cancelled) is still showing on his credit history. The algorithm almost certainly used it.`,
+      imageUrl: 'loan-robot.png',
+      imageCaption: 'Vivus.lv — "Your application is approved. Decision made automatically in seconds." The same system that silently rejects others.',
+    },
+
+    question: 'Under GDPR Art. 22, which rights does Māris have against this automated rejection?',
+    options: [
+      { id: 'A', text: 'None — financial companies are legally permitted to use fully automated decisions' },
+      { id: 'B', text: 'The right to opt out of the algorithm entirely and apply only to human-staffed lenders' },
+      { id: 'C', text: 'The right to human review, to express his view, and to contest the outcome' },
+      { id: 'D', text: 'The right to compensation only if he can prove the algorithm made a factual error' },
+    ],
+    correctAnswer: 'C',
+
+    reveal: {
+      title: 'A robot can\'t have the final word on your financial life',
+      verdict: 'C is correct',
+      points: [
+        {
+          icon: '🔴',
+          law: 'GDPR Art. 22(1)',
+          text: 'Individuals have the right NOT to be subject to decisions based solely on automated processing that produce significant legal effects. A loan rejection is a significant effect — it directly affects Māris\'s financial and working life.',
+        },
+        {
+          icon: '✅',
+          law: 'GDPR Art. 22(3)',
+          text: 'When automated decision-making is permitted (e.g. contractual necessity), the controller MUST: (1) allow human review of the decision, (2) let the person express their point of view, (3) allow the person to contest the outcome. Vivus provided none of these.',
+        },
+        {
+          icon: '📋',
+          law: 'GDPR Art. 13–14 — Transparency',
+          text: 'Vivus must inform Māris in their privacy notice that automated decisions are made, the logic involved, and the significance and consequences. "Decision made in seconds" on screen is not sufficient GDPR disclosure.',
+        },
+        {
+          icon: '🤖',
+          law: 'AI Act Annex III',
+          text: 'Credit scoring AI is explicitly listed as HIGH-RISK under AI Act Annex III. Vivus must maintain documentation, conduct conformity assessments, ensure human oversight capability, and register the system in the EU AI database before deploying it.',
+        },
+      ],
+    },
+
+    bonus: {
+      question: 'Under the AI Act, how is Vivus\'s credit-scoring algorithm classified?',
+      options: [
+        { id: 'A', text: 'Minimal risk — financial decision tools are excluded from AI Act regulation' },
+        { id: 'B', text: 'High-risk — credit scoring is listed in AI Act Annex III under access to essential services' },
+        { id: 'C', text: 'General Purpose AI — covered only if the model exceeds a compute training threshold' },
+        { id: 'D', text: 'Prohibited — fully automated lending decisions are banned outright under Art. 5' },
+      ],
+      correctAnswer: 'B',
+      explanation: 'AI Act Annex III, point 5(b): AI systems used to evaluate creditworthiness or establish credit scores are HIGH-RISK. This triggers a full compliance framework: technical documentation, human oversight mechanisms, accuracy and robustness requirements, registration in the EU AI public database, and a conformity assessment before deployment. High-risk ≠ prohibited — the system can operate, but with significant obligations. The ban (Art. 5) is reserved for social scoring by public authorities, subliminal manipulation, and a few other specific categories.',
+    },
+  },
+
 ]
 
 export const getRound = (id) => ROUNDS.find(r => r.id === id) || ROUNDS[0]
