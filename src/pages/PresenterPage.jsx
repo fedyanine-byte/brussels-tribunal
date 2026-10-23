@@ -34,8 +34,7 @@ export default function PresenterPage() {
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
         <div className="text-center">
           <div className="text-4xl mb-4 animate-spin">⚙️</div>
-          <p className="text-white/60">Starting game server...</p>
-          <p className="text-white/30 text-sm mt-2">Make sure the app is running (npm run dev)</p>
+          <p className="text-white/60">Creating game...</p>
         </div>
       </div>
     )
