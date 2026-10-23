@@ -350,7 +350,7 @@ The woman in the photo has no idea this is happening.`,
       title: 'The AI Nude',
       text: `Aigars, 22, downloads a free "AI photo enhancer" app he found on Telegram. He uploads a public Instagram photo of his ex-girlfriend. The app uses AI to generate a realistic nude image of her — combining her real face with a synthetic body.
 
-He shares the result in a group chat with 14 mutual friends, adding: "AI дало мне то, чего она не давала" ("AI gave me what she wouldn't").
+He shares the result in a group chat with 14 mutual friends, adding: "AI gave me what she wouldn't".
 
 The image is entirely synthetic — her face is real, the body is generated. She never posed for any photo like this.`,
       imageUrl: 'ai-nude.png',
