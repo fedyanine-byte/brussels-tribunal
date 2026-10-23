@@ -181,7 +181,7 @@ export default function PresenterPage() {
         <div className="flex gap-6 flex-1 min-h-0">
           {/* Scenario image */}
           <div className="flex-1 rounded-2xl overflow-hidden bg-white/5 border border-white/10 relative">
-            <img src={round.scenario.imageUrl} alt={round.scenario.title} className="w-full h-full object-contain" />
+            <img src={`${import.meta.env.BASE_URL}${round.scenario.imageUrl}`} alt={round.scenario.title} className="w-full h-full object-contain" />
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 p-4">
               <p className="text-white font-bold">{round.scenario.title}</p>
               <p className="text-white/60 text-sm">{round.scenario.imageCaption}</p>

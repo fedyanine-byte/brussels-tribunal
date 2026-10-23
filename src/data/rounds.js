@@ -19,7 +19,7 @@ export const ROUNDS = [
       text: `A Facebook group called "Tenant Blacklist" lets landlords warn others about problem tenants. One landlord posts a scan of a tenant's full passport (name, DOB, photo, ID number), photos of a damaged apartment, and writes: "DO NOT RENT TO THIS PERSON — she destroyed my apartment and refuses to pay compensation."
 
 The post stays up for 3 weeks. The tenant finds it, is refused by two other landlords who saw it, and files a complaint.`,
-      imageUrl: '/tenant-blacklist.png',
+      imageUrl: 'tenant-blacklist.png',
       imageCaption: 'Actual post from a Latvian "Tenant Blacklist" Facebook group (details redacted)',
     },
 
