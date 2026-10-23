@@ -123,6 +123,75 @@ export const ROUNDS = [
     ],
   },
 
+  // ── ROUND 2: The Drunk TikTok ────────────────────────────────────────────
+  {
+    id: 'round2',
+    number: 2,
+    title: 'The Drunk TikTok',
+    theme: 'Consent & Right to Erasure',
+    laws: ['GDPR'],
+    timerSeconds: 120,
+    points: 100,
+    bonusPoints: 50,
+
+    scenario: {
+      title: 'The Drunk TikTok',
+      text: `Marta and her friends were at a party. Her friend filmed her dancing — clearly intoxicated — and posted it on TikTok without asking. The video hit 12.4K likes overnight.
+
+The next morning Marta found it and messaged her friend: "Take it down, that's not funny!" The reply came back: "Hell no, you were at a party, not a private place. It's funny, get over it."`,
+      imageUrl: 'drunk-tiktok.png',
+      imageCaption: 'TikTok post + Marta\'s takedown request ignored',
+    },
+
+    question: 'Under GDPR, can Marta legally force her friend to remove the video?',
+    options: [
+      { id: 'A', text: 'No — she was in a public place, so no privacy protection applies' },
+      { id: 'B', text: 'Yes — no consent was given; Art. 17 right to erasure applies' },
+      { id: 'C', text: 'Only if the video shows her face clearly enough to identify her' },
+      { id: 'D', text: 'Only TikTok is responsible — her friend is just a private person' },
+    ],
+    correctAnswer: 'B',
+
+    reveal: {
+      title: '"Public place" is not a GDPR exemption',
+      verdict: 'B is correct',
+      points: [
+        {
+          icon: '🔴',
+          law: 'GDPR Art. 6',
+          text: '"You were at a party" is not a legal basis. Processing personal data (a video showing an identifiable face) requires a lawful basis — consent, legitimate interest, etc. Her friend had none.',
+        },
+        {
+          icon: '🔴',
+          law: 'GDPR Art. 17',
+          text: 'Right to erasure applies: no valid legal basis exists, Marta objected, and the data is being processed for entertainment. Both her friend AND TikTok can be required to delete it.',
+        },
+        {
+          icon: '⚖️',
+          law: 'Legitimate Interest test',
+          text: '"It\'s funny, get over it" fails the balancing test. The friend\'s interest in viral views does NOT override Marta\'s right to control her own image, especially in a compromising situation.',
+        },
+        {
+          icon: '📋',
+          law: 'Remedies',
+          text: 'Marta can: (1) file a GDPR erasure request to TikTok directly, (2) complain to the DPA, (3) sue her friend for damages. TikTok as a platform has DSA + GDPR obligations once notified.',
+        },
+      ],
+    },
+
+    bonus: {
+      question: 'What legal basis SHOULD Marta\'s friend have used before posting the video?',
+      options: [
+        { id: 'A', text: 'Legitimate interest — parties are semi-public events' },
+        { id: 'B', text: 'Explicit consent — ask Marta before posting' },
+        { id: 'C', text: 'Contract — they\'re friends, implied permission' },
+        { id: 'D', text: 'No basis needed — GDPR doesn\'t cover personal posts' },
+      ],
+      correctAnswer: 'B',
+      explanation: 'Consent (Art. 6(1)(a)) is the correct basis for sharing someone\'s image publicly. Note: GDPR\'s "household exemption" (Art. 2(2)(c)) covers truly private use — sharing only with a small group of mutual friends. Publishing to TikTok with 12K+ views is NOT household use. Explicit consent was required.',
+    },
+  },
+
   // ── ROUND 3: Tenant Blacklist ─────────────────────────────────────────────
   // NOTE: REDACTED image only (tenant-blacklist.png). Original contains real
   // Latvian passport data — NEVER use in classroom. See project security note.
