@@ -694,6 +694,80 @@ Google refuses: "The article is still online. We just index it."`,
     },
   },
 
+
+  // ── ROUND 10: The Cheap Smart Speaker ────────────────────────────────────
+  {
+    id: 'round10',
+    number: 10,
+    title: 'The Cheap Speaker',
+    theme: 'Consent, Dark Patterns & IoT',
+    laws: ['GDPR'],
+    timerSeconds: 120,
+    points: 100,
+    bonusPoints: 50,
+
+    scenario: {
+      title: 'The Cheap Smart Speaker',
+      text: `You order a €12.39 Bluetooth speaker from AliExpress. During setup, a popup appears:
+
+"Terms and Conditions: (page 47) — Device may process audio to improve service quality."
+
+The only button reads: ACCEPT T&C.
+
+You accept — there is no other way to use the device. The speaker sits in your kitchen, always plugged in, always on.`,
+      imageUrl: 'smart-speaker.png',
+      imageCaption: 'AliExpress speaker setup — consent to audio processing buried on page 47 of T&C',
+    },
+
+    question: 'Is clicking "ACCEPT T&C" valid GDPR consent for the device to process your home audio?',
+    options: [
+      { id: 'A', text: 'Yes — you were informed in the T&C and had the option to close the popup' },
+      { id: 'B', text: 'Yes — consumer electronics are exempt from GDPR consent rules if the purpose is service improvement' },
+      { id: 'C', text: 'No — valid consent must be freely given, specific and informed; a buried T&C clause is none of these' },
+      { id: 'D', text: 'Depends — valid if the company has an EU address; invalid if it\'s based in China' },
+    ],
+    correctAnswer: 'C',
+
+    reveal: {
+      title: '"Page 47" is not consent — it\'s a dark pattern',
+      verdict: 'C is correct',
+      points: [
+        {
+          icon: '🔴',
+          law: 'GDPR Art. 7(4) — Consent bundled into T&C',
+          text: 'Consent bundled as a condition of accessing a service is presumed NOT freely given. "You can\'t use the device unless you accept audio processing" means the consent is coerced, not a genuine free choice.',
+        },
+        {
+          icon: '🔴',
+          law: 'GDPR Art. 4(11) — Unambiguous indication',
+          text: 'Consent requires an unambiguous, affirmative act. Clicking a single "ACCEPT T&C" button for 47 pages of terms is NOT specific consent to audio processing — it\'s a take-it-or-leave-it bundle. Audio consent must be granular and separate.',
+        },
+        {
+          icon: '🔴',
+          law: 'GDPR Art. 5(1)(b) — Purpose specification',
+          text: '"Improve service quality" is not a specific, explicit purpose. GDPR requires the exact purpose be stated before collection begins — not buried in page 47. What audio? When? Shared with whom? Retained how long? None of this is answered.',
+        },
+        {
+          icon: '⚖️',
+          law: 'GDPR Art. 3(2) — Territorial scope',
+          text: 'GDPR applies even if the manufacturer is in China. If the device is sold to EU consumers and processes their data, EU law governs. The seller may be unreachable for enforcement — but the processing is still illegal. EU customs can also block non-compliant IoT devices at the border.',
+        },
+      ],
+    },
+
+    bonus: {
+      question: 'Which GDPR principle does "Device may process audio to improve service quality" most directly violate?',
+      options: [
+        { id: 'A', text: 'Storage limitation (Art. 5(1)(e)) — audio should not be kept longer than necessary' },
+        { id: 'B', text: 'Purpose limitation (Art. 5(1)(b)) — purposes must be explicit, specific and legitimate — not vague' },
+        { id: 'C', text: 'Data minimisation (Art. 5(1)(c)) — a speaker doesn\'t need audio data at all' },
+        { id: 'D', text: 'Accuracy (Art. 5(1)(d)) — the audio captured may not accurately reflect the user\'s words' },
+      ],
+      correctAnswer: 'B',
+      explanation: '"Improve service quality" is classic purpose-washing — a phrase so vague it could justify collecting almost anything. GDPR Art. 5(1)(b) requires purposes to be specified, explicit and legitimate at the time of collection. Art. 13 requires the controller to inform the subject of the purpose in a clear, plain-language privacy notice — not in clause 47(c)(iii) of a T&C document. Data minimisation (C) is also a strong argument — if the device functions as a Bluetooth speaker, it may not need to process audio at all for "service improvement." Both B and C are valid critiques; B is the more direct violation of the consent notice specifically.',
+    },
+  },
+
 ]
 
 export const getRound = (id) => ROUNDS.find(r => r.id === id) || ROUNDS[0]
